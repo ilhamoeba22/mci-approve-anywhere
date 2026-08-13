@@ -1,4 +1,4 @@
-﻿const mssql = require('mssql');
+const mssql = require('mssql');
 require('dotenv').config();
 
 // Pool cache map: key = dbTargetKey -> Promise<pool>
@@ -77,11 +77,11 @@ function resolveDbConfig(targetDb) {
     return {
       key: 'BPRS_MCI_LIVE',
       displayName: 'BPRS_MCI (Live Production)',
-      server: 'iba-net.02.mglobalperdana.com',
-      port: 20133,
+      server: process.env.DB_HOST || 'iba-net.02.mglobalperdana.com',
+      port: parseInt(process.env.DB_PORT || '44333', 10),
       database: 'BPRS_MCI',
-      user: 'saiba',
-      password: 'YkETOrtaVerLEMOn'
+      user: process.env.DB_USER || 'saiba',
+      password: process.env.DB_PASS || 'YkETOrtaVerLEMOn'
     };
   }
 
