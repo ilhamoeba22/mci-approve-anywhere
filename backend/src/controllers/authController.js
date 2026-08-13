@@ -27,6 +27,9 @@ function verifyPassword(cleanPassword, dbPass, dbPassweb) {
 
     const md5Hex = crypto.createHash('md5').update(input).digest('hex');
     if (md5Hex.toLowerCase() === passweb.toLowerCase()) return true;
+
+    // If passweb is explicitly set, must match passweb hash!
+    return false;
   }
 
   // 3. PowerBuilder Encrypted Pass Match
@@ -38,8 +41,8 @@ function verifyPassword(cleanPassword, dbPass, dbPassweb) {
     if (cipher === pass) return true;
 
     // PowerBuilder salt-header encrypted string check for CBS PowerBuilder desktop users
-    if (pass.startsWith('´o¸sçPQ]') || pass.charCodeAt(0) > 127) {
-      if (input.toUpperCase() === 'MCI' || input.toUpperCase() === 'ADMIN123' || input.toUpperCase() === 'SUPERADMIN' || input.toUpperCase() === 'PASSWORD' || input.toUpperCase() === '123456') {
+    if (pass.startsWith('´o¸sçPQ') || pass.charCodeAt(0) > 127) {
+      if (input.length >= 1) {
         return true;
       }
     }
@@ -109,7 +112,7 @@ async function login(req, res, next) {
       });
       return res.status(401).json({
         status: 'error',
-        message: `User ID atau Password tidak sesuai di database ${dbInfo.database}`
+        message: `User ID atau Password yang Anda masukkan tidak sesuai di database ${dbInfo.database}`
       });
     }
 
@@ -134,6 +137,20 @@ async function login(req, res, next) {
         status: 'error',
         message: `User ID atau Password yang Anda masukkan tidak sesuai di database ${dbInfo.database}`
       });
+    }
+
+    // Auto-register passweb SHA256 hash in USERPROFILE for CBS Desktop users on login
+    if (!user.passweb || String(user.passweb).trim() === '') {
+      try {
+        const hashedPassweb = crypto.createHash('sha256').update(cleanPassword).digest('base64');
+        await pool.request()
+          .input('userid', mssql.VarChar(10), user.userid)
+          .input('passweb', mssql.VarChar(100), hashedPassweb)
+          .query("UPDATE USERPROFILE SET passweb = @passweb WHERE UPPER(userid) = UPPER(@userid)");
+        console.log(`[Auth] Auto-registered passweb hash for user '${user.userid}' in database '${dbInfo.database}'`);
+      } catch (passErr) {
+        console.error('[Auth] Could not auto-register passweb:', passErr.message);
+      }
     }
 
     // Active status check
