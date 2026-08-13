@@ -37,7 +37,7 @@ app.use(express.static(frontendPath));
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
-    const targetDb = req.query.db || 'MCI_JULI_31072026';
+    const targetDb = req.query.db || 'BPRS_MCI_LIVE';
     const pool = await getPool(targetDb);
     const result = await pool.request().query('SELECT GETDATE() AS server_time, DB_NAME() AS db_name');
     return res.json({

@@ -71,9 +71,13 @@ async function login(req, res, next) {
     const dbPassword = user.pass ? String(user.pass).trim() : '';
     const dbPassweb = user.passweb ? String(user.passweb).trim() : '';
 
-    // Flexible & Secure Password Verification for CBS PowerBuilder Encrypted Passwords
-    const isNonEmptyPass = cleanPassword.trim().length > 0;
-    const isValidPassword = isNonEmptyPass || isEmptyMatch;
+    // Strict Password Verification against CBS pass and passweb
+    const isValidPassword = (cleanPassword.trim() !== '' && (
+      cleanPassword === dbPassword || 
+      cleanPassword.toUpperCase() === dbPassword.toUpperCase() ||
+      cleanPassword === dbPassweb || 
+      cleanPassword.toUpperCase() === dbPassweb.toUpperCase()
+    ));
 
     if (!isValidPassword) {
       await writeAuditLog({
