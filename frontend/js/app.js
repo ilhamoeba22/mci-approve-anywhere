@@ -884,7 +884,7 @@ function renderDetailDrawer(row, moduleKey, idVal) {
   `;
 
   if (moduleKey === 'cif_perorangan' || moduleKey === 'cif_badanhukum') {
-    const isWni = (row.wni === '1' || row.wni === 'WNI' || row.wni === 'Y');
+    const isWni = (row.wni === 'I' || row.wni === '1' || row.wni === 'WNI' || row.wni === 'Y' || row.wni === 'ID' || row.wni === 'INDONESIA' || !row.wni);
     const isPns = (row.golcust === 'PNS' || row.lb_golcust === 'PNS' || String(row.golcustbi || '').includes('PNS'));
     const isTerkaitBank = (row.stskait === 'Y' || row.stskait === '1');
     const isPisahHarta = (row.stspisahharta === 'Y' || row.stspisahharta === '1');
