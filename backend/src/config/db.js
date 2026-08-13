@@ -198,22 +198,6 @@ async function closeAllPools() {
 }
 
 async function listAvailableDatabases() {
-  const localDatabases = [];
-  try {
-    const defaultPool = await getPool('MCI_JULI_31072026');
-    const query = `
-      SELECT name, create_date 
-      FROM sys.databases 
-      WHERE name NOT IN ('master','tempdb','model','msdb') AND state_desc='ONLINE' 
-      ORDER BY create_date DESC
-    `;
-    const result = await defaultPool.request().query(query);
-    result.recordset.forEach(r => localDatabases.push({ name: r.name, create_date: r.create_date }));
-  } catch (err) {
-    console.error('[DB] Error fetching local databases via sys.databases:', err.message);
-    localDatabases.push({ name: 'MCI_JULI_31072026' }, { name: 'test eoy' });
-  }
-
   return {
     live: [
       {
@@ -224,13 +208,7 @@ async function listAvailableDatabases() {
         isDefault: true
       }
     ],
-    local: localDatabases.map(item => ({
-      key: item.name,
-      name: parseDbHumanLabel(item.name),
-      server: '192.168.1.130',
-      database: item.name,
-      create_date: item.create_date
-    }))
+    local: []
   };
 }
 

@@ -371,23 +371,11 @@ async function loadLoginDatabases() {
 
   try {
     const res = await fetch('/api/auth/databases').then(r => r.json());
-    if (res.status === 'success' && res.data) {
+    if (res.status === 'success' && res.data && res.data.live) {
       let html = '';
-      
-      // 1. Live Production DB (Default Selected)
-      if (res.data.live) {
-        res.data.live.forEach(db => {
-          html += `<option value="${db.key}" selected>${db.name}</option>`;
-        });
-      }
-
-      // 2. Local DBs (Ordered by create_date DESC)
-      if (res.data.local) {
-        res.data.local.forEach(db => {
-          html += `<option value="${db.key}">${db.name}</option>`;
-        });
-      }
-
+      res.data.live.forEach(db => {
+        html += `<option value="${db.key}" selected>${db.name}</option>`;
+      });
       select.innerHTML = html;
     }
   } catch (err) {
