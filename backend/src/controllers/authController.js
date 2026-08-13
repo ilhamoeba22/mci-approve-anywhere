@@ -2,6 +2,44 @@ const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../
 const { getPool, resolveDbConfig, listAvailableDatabases, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
 
+function verifyPassword(cleanPassword, dbPass, dbPassweb) {
+  if (!cleanPassword || cleanPassword.trim() === '') return false;
+  
+  const input = cleanPassword.trim();
+  const pass = (dbPass || '').trim();
+  const passweb = (dbPassweb || '').trim();
+
+  // 1. Plaintext Match
+  if (input === pass || input.toUpperCase() === pass.toUpperCase()) return true;
+  if (input === passweb || input.toUpperCase() === passweb.toUpperCase()) return true;
+
+  // 2. Hash Match against passweb
+  if (passweb) {
+    const sha256Base64 = crypto.createHash('sha256').update(input).digest('base64');
+    if (sha256Base64 === passweb) return true;
+    
+    const sha256Hex = crypto.createHash('sha256').update(input).digest('hex');
+    if (sha256Hex.toLowerCase() === passweb.toLowerCase()) return true;
+    
+    const md5Base64 = crypto.createHash('md5').update(input).digest('base64');
+    if (md5Base64 === passweb) return true;
+
+    const md5Hex = crypto.createHash('md5').update(input).digest('hex');
+    if (md5Hex.toLowerCase() === passweb.toLowerCase()) return true;
+  }
+
+  // 3. PowerBuilder MitraSoft Pass Cipher Match
+  if (pass) {
+    let cipher = '';
+    for (let i = 0; i < input.length; i++) {
+      cipher += String.fromCharCode(input.charCodeAt(i) ^ 0x5A);
+    }
+    if (cipher === pass) return true;
+  }
+
+  return false;
+}
+
 async function login(req, res, next) {
   try {
     const { userid, password, target_db } = req.body;
@@ -15,7 +53,7 @@ async function login(req, res, next) {
 
     const cleanUserid = String(userid).trim();
     const cleanPassword = password !== undefined && password !== null ? String(password) : '';
-    const selectedDb = (target_db || 'MCI_JULI_31072026').trim();
+    const selectedDb = (target_db || 'BPRS_MCI_LIVE').trim();
     const dbInfo = resolveDbConfig(selectedDb);
 
     const pool = await getPool(selectedDb);
@@ -72,12 +110,7 @@ async function login(req, res, next) {
     const dbPassweb = user.passweb ? String(user.passweb).trim() : '';
 
     // Strict Password Verification against CBS pass and passweb
-    const isValidPassword = (cleanPassword.trim() !== '' && (
-      cleanPassword === dbPassword || 
-      cleanPassword.toUpperCase() === dbPassword.toUpperCase() ||
-      cleanPassword === dbPassweb || 
-      cleanPassword.toUpperCase() === dbPassweb.toUpperCase()
-    ));
+    const isValidPassword = verifyPassword(cleanPassword, dbPassword, dbPassweb);
 
     if (!isValidPassword) {
       await writeAuditLog({
@@ -91,7 +124,7 @@ async function login(req, res, next) {
       });
       return res.status(401).json({
         status: 'error',
-        message: `User ID atau Password tidak sesuai di database ${dbInfo.database}`
+        message: `User ID atau Password yang Anda masukkan tidak sesuai di database ${dbInfo.database}`
       });
     }
 
