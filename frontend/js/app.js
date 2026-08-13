@@ -317,7 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if (loginForm) loginForm.addEventListener('submit', handleLogin);
-  safeAddListener('logout-btn', 'click', logout);
+  safeAddListener('logout-btn', 'click', openLogoutModal);
+  safeAddListener('close-logout-btn', 'click', hideLogoutModal);
+  safeAddListener('cancel-logout-btn', 'click', hideLogoutModal);
+  safeAddListener('confirm-logout-btn', 'click', confirmLogout);
+
   safeAddListener('refresh-dashboard-btn', 'click', loadDashboardData);
   safeAddListener('refresh-module-btn', 'click', () => loadModuleData(state.currentModule));
   safeAddListener('refresh-audit-btn', 'click', loadAuditLogs);
@@ -365,6 +369,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function showToast(title, message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const icons = {
+    success: '✅',
+    danger: '❌',
+    warning: '⚠️',
+    info: 'ℹ️'
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('toast-hiding');
+    setTimeout(() => toast.remove(), 300);
+  }, 4500);
+}
+
 async function loadLoginDatabases() {
   const select = document.getElementById('target_db');
   if (!select) return;
@@ -405,12 +439,30 @@ async function handleLogin(e) {
     localStorage.setItem('user', JSON.stringify(data.user));
 
     showAppShell();
+    showToast('Login Berhasil', `Selamat datang, ${data.user.nmuser || data.user.userid}! Terhubung ke Database Live BPRS_MCI.`, 'success');
   } catch (err) {
-    loginError.textContent = err.message;
+    loginError.textContent = `❌ ${err.message || 'User ID atau Password tidak sesuai'}`;
     loginError.classList.remove('hidden');
+    showToast('Gagal Login', err.message || 'User ID atau Password yang Anda masukkan tidak sesuai di database', 'danger');
   } finally {
     btn.disabled = false;
   }
+}
+
+function openLogoutModal() {
+  const modal = document.getElementById('logout-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function hideLogoutModal() {
+  const modal = document.getElementById('logout-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function confirmLogout() {
+  hideLogoutModal();
+  logout();
+  showToast('Logout Selesai', 'Anda telah berhasil keluar dari sesi portal otorisasi.', 'info');
 }
 
 function logout() {
@@ -1555,11 +1607,13 @@ async function submitApproval() {
 
     hideApproveModal();
     showAlert('success', res.message);
+    showToast('Otorisasi Disetujui! ✅', res.message || `Permohonan ${state.selectedItem} telah berhasil disetujui (Approved).`, 'success');
     loadModuleData(state.selectedModule);
     loadDashboardData();
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.remove('hidden');
+    showToast('Gagal Disetujui ❌', err.message || 'Terjadi kesalahan saat menyetujui otorisasi', 'danger');
   } finally {
     btn.disabled = false;
   }
@@ -1594,6 +1648,7 @@ async function submitRejection() {
   if (reason.length < 5) {
     errorEl.textContent = 'Alasan penolakan minimal 5 karakter';
     errorEl.classList.remove('hidden');
+    showToast('Peringatan ⚠️', 'Alasan penolakan wajib diisi minimal 5 karakter.', 'warning');
     return;
   }
 
@@ -1609,11 +1664,13 @@ async function submitRejection() {
 
     hideRejectModal();
     showAlert('success', res.message);
+    showToast('Penolakan Berhasil ❌', res.message || `Permohonan ${state.selectedItem} telah berhasil ditolak.`, 'danger');
     loadModuleData(state.selectedModule);
     loadDashboardData();
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.remove('hidden');
+    showToast('Gagal Menolak ⚠️', err.message || 'Terjadi kesalahan saat menolak permohonan', 'danger');
   } finally {
     btn.disabled = false;
   }

@@ -380,6 +380,36 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=3.0.0"></script>
+  <!-- Logout Confirmation Modal -->
+  <div id="logout-modal" class="modal-backdrop hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <span class="modal-title-icon">🚪</span>
+          <h3>Konfirmasi Keluar Sesi</h3>
+        </div>
+        <button class="close-btn" id="close-logout-btn">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 20px 24px;">
+        <p class="modal-description" style="font-size:0.95rem; color:var(--text-main); margin-bottom: 8px;">
+          Apakah Anda yakin ingin keluar dari <strong>Portal Otorisasi Core Banking</strong>?
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted);">
+          Sesi aktif Anda akan diakhiri dan Anda akan dikembalikan ke halaman login.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-logout-btn">Batal</button>
+        <button class="btn btn-danger" id="confirm-logout-btn">
+          <span>🚪 Ya, Keluar Sekarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="js/app.js?v=3.2.0"></script>
 </body>
 </html>
