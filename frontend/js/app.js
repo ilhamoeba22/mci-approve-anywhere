@@ -450,16 +450,36 @@ function renderDynamicNavigation(user) {
   const limitldr = Number(user.limitldr || 0);
   const limitcdr = Number(user.limitcdr || 0);
   const userid = (user.userid || '').toUpperCase();
+  const dept = (user.dept || '').toUpperCase();
 
-  const isLevelA = (level === 'A');
-  const isLevelMOrS = (level === 'M' || level === 'S');
+  // Superadmin / Executive: Level A/M, full access string, or both limitldr & limitcdr > 0
+  const isSuperadmin = ['A', 'M'].includes(level) || akses === 'YYYYYYYYYYYYY' || (limitldr > 0 && limitcdr > 0);
+  
+  // Legal Division User: Has Lending Limit (limitldr > 0) without Funding Limit (limitcdr == 0), or Legal User ID / Dept
+  const isLegalUser = (limitldr > 0 && limitcdr === 0) || ['ANTO', 'TEDDY', 'LEGAL'].includes(userid) || dept.includes('LEG');
+  
+  // Operasional Division User: Has Funding Limit (limitcdr > 0) without Lending Limit (limitldr == 0), or Operasional Dept
+  const isOperasionalUser = (limitcdr > 0 && limitldr === 0) || dept.includes('OPE');
 
-  // DIVISI OPERASIONAL & LEGAL: DITAMPILKAN LENGKAP UNTUK SELURUH PEJABAT & SUPERVISOR OTORISASI
-  const isOperasionalAuthorized = true;
-  const isLegalAuthorized = true;
+  let isOperasionalAuthorized = false;
+  let isLegalAuthorized = false;
+
+  if (isSuperadmin) {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = true;
+  } else if (isLegalUser) {
+    isOperasionalAuthorized = false;
+    isLegalAuthorized = true;
+  } else if (isOperasionalUser) {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = false;
+  } else {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = true;
+  }
 
   // SISTEM & AUDIT: HANYA DITAMPILKAN UNTUK USER LEVEL A SUPERADMIN SAJA
-  const isSystemAuditAuthorized = isLevelA;
+  const isSystemAuditAuthorized = (level === 'A');
 
   const headerOperasional = document.getElementById('header-operasional');
   const groupOperasional = document.getElementById('group-operasional');
@@ -567,10 +587,28 @@ async function loadDashboardData() {
   const limitldr = Number(user?.limitldr || 0);
   const limitcdr = Number(user?.limitcdr || 0);
   const userid = (user?.userid || '').toUpperCase();
+  const dept = (user?.dept || '').toUpperCase();
 
-  const isSuperadmin = ['A', 'M'].includes(level) || akses === 'YYYYYYYYYYYYY' || akses.includes('YYYYYYYYY');
-  const isLegalAuthorized = isSuperadmin || ['ANTO', 'TEDDY'].includes(userid) || limitldr > 0;
-  const isOperasionalAuthorized = isSuperadmin || ['A', 'M', 'S'].includes(level) || limitcdr > 0;
+  const isSuperadmin = ['A', 'M'].includes(level) || akses === 'YYYYYYYYYYYYY' || (limitldr > 0 && limitcdr > 0);
+  const isLegalUser = (limitldr > 0 && limitcdr === 0) || ['ANTO', 'TEDDY', 'LEGAL'].includes(userid) || dept.includes('LEG');
+  const isOperasionalUser = (limitcdr > 0 && limitldr === 0) || dept.includes('OPE');
+
+  let isOperasionalAuthorized = false;
+  let isLegalAuthorized = false;
+
+  if (isSuperadmin) {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = true;
+  } else if (isLegalUser) {
+    isOperasionalAuthorized = false;
+    isLegalAuthorized = true;
+  } else if (isOperasionalUser) {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = false;
+  } else {
+    isOperasionalAuthorized = true;
+    isLegalAuthorized = true;
+  }
 
   const operasionalKeys = ['cif_perorangan', 'cif_badanhukum', 'tabungan', 'deposito', 'pembiayaan', 'transaksi', 'aset', 'kondisi_khusus'];
   const legalKeys = ['jaminan'];
