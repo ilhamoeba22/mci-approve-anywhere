@@ -1,0 +1,9 @@
+{
+  "activePresetId": "custom",
+  "server": "192.168.1.130",
+  "port": 44333,
+  "database": "MCI_REALTIME_CLONE",
+  "user": "sa",
+  "password": "bon",
+  "readOnlyUser": "sa"
+}

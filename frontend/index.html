@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Otorisasi Core Banking — MitraSoft CSBO</title>
+  <link rel="icon" type="image/png" href="img/icon_mci.png">
+  <link rel="shortcut icon" type="image/png" href="img/icon_mci.png">
+  <link rel="apple-touch-icon" href="img/icon_mci.png">
+  <link rel="stylesheet" href="css/style.css?v=3.1.0">
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="img/logo_mci.png" alt="BPR Syariah HIK MCI" class="login-logo-img">
+        <h2>Portal Otorisasi Core Banking</h2>
+        <p>Sistem Otorisasi Terpadu Pejabat & Supervisor (CSBO MitraSoft)</p>
+      </div>
+      <form id="login-form">
+        <!-- Target Database Selector -->
+        <div class="form-group">
+          <label for="target_db">Pilih Server & Database Target</label>
+          <select id="target_db" class="search-field" style="width: 100%; padding: 10px 14px;" required>
+            <option value="BPRS_MCI_LIVE" selected>🔴 BPRS_MCI — Database Production Live (iba-net.02.mglobalperdana.com)</option>
+            <option value="MCI_JULI_31072026">🟢 MCI_JULI_31072026 — Database Juli 2026 (Database Utama)</option>
+            <option value="MCI_JUNI_30062026">🔵 MCI_JUNI_30062026 — Database Juni 2026</option>
+            <option value="test eoy">🟡 test eoy — Database Pengujian EOY (End of Year)</option>
+            <option value="dashboard_monitoring">🔵 dashboard_monitoring — Database Dashboard & Monitoring</option>
+            <option value="MCI_REALTIME_CLONE">🔵 MCI_REALTIME_CLONE — Database Realtime Clone</option>
+            <option value="MCI_MEI_31052026">🔵 MCI_MEI_31052026 — Database Mei 2026</option>
+            <option value="MCI_APR26_30042026">🔵 MCI_APR26_30042026 — Database April 2026</option>
+            <option value="new_dashboard">🔵 new_dashboard — Database Dashboard & Monitoring</option>
+            <option value="MCI_MAR26_01042026">🔵 MCI_MAR26_01042026 — Database Maret 2026</option>
+            <option value="MCI_FEB26_01032026">🔵 MCI_FEB26_01032026 — Database Februari 2026</option>
+            <option value="MCI_JAN_31012026">🔵 MCI_JAN_31012026 — Database Januari 2026</option>
+            <option value="MCI_DES_312025">🔵 MCI_DES_312025 — Database Desember 2025</option>
+            <option value="MCI_NOV_30112025">🔵 MCI_NOV_30112025 — Database November 2025</option>
+            <option value="MCI_OKT_31102025">🔵 MCI_OKT_31102025 — Database Oktober 2025</option>
+            <option value="MCI_Sept_302025">🔵 MCI_Sept_302025 — Database September 2025</option>
+            <option value="MCI_AGT_31082025">🔵 MCI_AGT_31082025 — Database Agustus 2025</option>
+            <option value="MCI_JULI_31072025">🔵 MCI_JULI_31072025 — Database Juli 2025</option>
+            <option value="MCI_JUN_2025">🔵 MCI_JUN_2025 — Database Juni 2025</option>
+            <option value="MCI_MEI25_31052025">🔵 MCI_MEI25_31052025 — Database Mei 2025</option>
+            <option value="MCI_APR25_30042025">🔵 MCI_APR25_30042025 — Database April 2025</option>
+            <option value="MCI_MAR25_010425">🔵 MCI_MAR25_010425 — Database Maret 2025</option>
+            <option value="MCI_FEB_28022025">🔵 MCI_FEB_28022025 — Database Februari 2025</option>
+            <option value="MCI_JAN31012025_BC">🔵 MCI_JAN31012025_BC — Database Januari 2025</option>
+            <option value="MCI_JAN_31012025">🔵 MCI_JAN_31012025 — Database Januari 2025</option>
+            <option value="MCI_DES_31122024">🔵 MCI_DES_31122024 — Database Desember 2024</option>
+            <option value="MCI_NOV_01122024">🔵 MCI_NOV_01122024 — Database November 2024</option>
+            <option value="MCI_OKT_31102024">🔵 MCI_OKT_31102024 — Database Oktober 2024</option>
+            <option value="MCI_SEPT_01102024">🔵 MCI_SEPT_01102024 — Database September 2024</option>
+            <option value="MCI_JULI_08082024">🔵 MCI_JULI_08082024 — Database Juli 2024</option>
+            <option value="MCI_AGT_03092024">🔵 MCI_AGT_03092024 — Database Agustus 2024</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="userid">User ID Supervisor / Checker</label>
+          <input type="text" id="userid" placeholder="Contoh: SUPERADMIN / TYAH / NURTEN" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Masukkan password Anda" required autocomplete="current-password">
+        </div>
+        <div id="login-error" class="alert alert-danger hidden"></div>
+        <button type="submit" id="login-btn" class="btn btn-primary btn-block">
+          <span class="btn-text">Masuk ke Portal Otorisasi</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+      <div class="login-footer">
+        <span>Akses hanya untuk user level Supervisor/Checker (Level A, M, S)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Shell -->
+  <div id="app-shell" class="app-container hidden">
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div class="brand">
+        <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Buka/Tutup Sidebar (Ctrl+B)">☰</button>
+        <img src="img/logo_mci.png" alt="BPR Syariah HIK MCI" class="brand-logo-desktop">
+        <img src="img/icon_mci.png" alt="BPR Syariah HIK MCI" class="brand-logo-mobile">
+      </div>
+
+      <div class="header-right">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" title="Ganti Mode Gelap / Terang">
+          <span id="theme-icon">🌙</span>
+          <span id="theme-text">Mode Gelap</span>
+        </button>
+        <div class="db-badge" id="db-badge" title="Database Aktif">
+          <span class="icon">🗄️</span>
+          <span id="db-name-display">MCI_JULI_31072026</span>
+        </div>
+        <div class="network-badge" id="net-badge">
+          <span class="dot"></span>
+          <span id="net-type">LAN</span>
+        </div>
+        <div class="user-info">
+          <span class="user-name" id="user-name-display">-</span>
+          <span class="user-level-badge" id="user-level-display">LEVEL -</span>
+        </div>
+        <button id="logout-btn" class="btn btn-outline btn-sm">Keluar</button>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="app-body">
+      <!-- Sidebar Navigation -->
+      <aside class="app-sidebar">
+        <div class="sidebar-title">PORTAL OTORISASI</div>
+        <nav class="nav-menu">
+          <button class="nav-item active" data-module="dashboard">
+            <span class="icon">📊</span> <span>Ringkasan Dashboard</span>
+          </button>
+
+          <div class="sidebar-section-header" id="header-operasional">DIVISI OPERASIONAL</div>
+          <div class="sidebar-group" id="group-operasional">
+            <button class="nav-item" data-module="cif_perorangan">
+              <span class="icon">👤</span> <span>CIF Perorangan</span>
+              <span class="badge badge-count" id="count-cif_perorangan">0</span>
+            </button>
+            <button class="nav-item" data-module="cif_badanhukum">
+              <span class="icon">🏢</span> <span>CIF Badan Hukum</span>
+              <span class="badge badge-count" id="count-cif_badanhukum">0</span>
+            </button>
+            <button class="nav-item" data-module="tabungan">
+              <span class="icon">💳</span> <span>Tabungan</span>
+              <span class="badge badge-count" id="count-tabungan">0</span>
+            </button>
+            <button class="nav-item" data-module="deposito">
+              <span class="icon">💰</span> <span>Deposito</span>
+              <span class="badge badge-count" id="count-deposito">0</span>
+            </button>
+            <button class="nav-item" data-module="pembiayaan">
+              <span class="icon">📄</span> <span>Pembiayaan</span>
+              <span class="badge badge-count" id="count-pembiayaan">0</span>
+            </button>
+            <button class="nav-item" data-module="transaksi">
+              <span class="icon">💸</span> <span>Transaksi</span>
+              <span class="badge badge-count" id="count-transaksi">0</span>
+            </button>
+            <button class="nav-item" data-module="aset">
+              <span class="icon">🖥️</span> <span>Aset / Inventaris</span>
+              <span class="badge badge-count" id="count-aset">0</span>
+            </button>
+            <button class="nav-item" data-module="kondisi_khusus">
+              <span class="icon">⚡</span> <span>Kondisi Khusus</span>
+              <span class="badge badge-count" id="count-kondisi_khusus">0</span>
+            </button>
+          </div>
+
+          <div class="sidebar-section-header" id="header-legal">DIVISI LEGAL</div>
+          <div class="sidebar-group" id="group-legal">
+            <button class="nav-item" data-module="jaminan">
+              <span class="icon">🏠</span> <span>Jaminan / Agunan</span>
+              <span class="badge badge-count" id="count-jaminan">0</span>
+            </button>
+          </div>
+
+          <div class="sidebar-section-header" id="header-system">SISTEM & AUDIT</div>
+          <div class="sidebar-group" id="group-system">
+            <button class="nav-item" data-module="tutup_kantor">
+              <span class="icon">🔒</span> <span>Status Tutup Kantor</span>
+            </button>
+            <button class="nav-item" data-module="audit">
+              <span class="icon">📜</span> <span>Log Audit Web</span>
+            </button>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Mobile Sidebar Backdrop Overlay -->
+      <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+      <!-- Main Workspace -->
+      <main class="app-main">
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="module-view">
+          <!-- Welcome Hero Banner -->
+          <div class="dashboard-hero-banner">
+            <div class="hero-left">
+              <div class="hero-greeting">
+                <span class="hero-badge">⚡ PORTAL OTORISASI REAL-TIME</span>
+                <h2 id="dash-welcome-title">Selamat Datang, <span id="dash-user-name">Supervisor</span></h2>
+                <p class="hero-subtitle">Pantau dan kelola seluruh permohonan otorisasi pending dari CBS Desktop secara presisi & aman.</p>
+              </div>
+            </div>
+            <div class="hero-kpis">
+              <div class="kpi-item">
+                <span class="kpi-label">TOTAL PENDING</span>
+                <span class="kpi-val" id="dash-total-pending">0</span>
+              </div>
+              <div class="kpi-divider"></div>
+              <div class="kpi-item">
+                <span class="kpi-label">STATUS KEAMANAN</span>
+                <span class="kpi-val kpi-green">TERPROTEKSI</span>
+              </div>
+              <div class="kpi-divider"></div>
+              <div class="kpi-item">
+                <button id="refresh-dashboard-btn" class="btn btn-primary btn-sm">🔄 Refresh Data</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid" id="stats-cards-grid">
+            <!-- Cards populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Generic Data Table View -->
+        <div id="view-module" class="module-view hidden">
+          <div class="view-header">
+            <div>
+              <h2 id="module-title">Daftar Permohonan</h2>
+              <p class="subtitle" id="module-subtitle">Data pending dari CBS Desktop</p>
+            </div>
+            <div class="header-actions">
+              <input type="text" id="search-input" placeholder="🔍 Cari ID / Nama / Maker..." class="search-field">
+              <button id="refresh-module-btn" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+            </div>
+          </div>
+
+          <div id="module-alert" class="alert hidden"></div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Audit Log View -->
+        <div id="view-audit" class="module-view hidden">
+          <div class="view-header">
+            <div>
+              <h2>Riwayat Aktivitas & Log Audit User</h2>
+              <p class="subtitle">Rekam jejak lengkap otorisasi, penolakan, login, dan aksi user</p>
+            </div>
+            <div class="header-actions">
+              <button id="export-audit-csv-btn" class="btn btn-secondary btn-sm">📥 Export CSV</button>
+              <button id="refresh-audit-btn" class="btn btn-primary btn-sm">🔄 Refresh Log</button>
+            </div>
+          </div>
+
+          <!-- Audit Filters Bar -->
+          <div class="stat-card" style="margin-bottom: 16px; padding: 14px 18px; cursor: default;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end;">
+              <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Filter User ID</label>
+                <select id="audit-filter-user" class="search-field" style="width:100%; padding:6px 10px;">
+                  <option value="">Semua User</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Filter Modul</label>
+                <select id="audit-filter-modul" class="search-field" style="width:100%; padding:6px 10px;">
+                  <option value="">Semua Modul</option>
+                  <option value="AUTH">AUTH (Login/Logout)</option>
+                  <option value="CIF_PERORANGAN">CIF Perorangan</option>
+                  <option value="CIF_BADANHUKUM">CIF Badan Hukum</option>
+                  <option value="TABUNGAN">Tabungan</option>
+                  <option value="DEPOSITO">Deposito</option>
+                  <option value="TRANSAKSI">Transaksi Teller</option>
+                  <option value="PEMBIAYAAN">Pembiayaan</option>
+                  <option value="ASET">Aset / Inventaris</option>
+                  <option value="JAMINAN">Jaminan / Agunan</option>
+                  <option value="KONDISI_KHUSUS">Kondisi Khusus</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Filter Aksi</label>
+                <select id="audit-filter-aksi" class="search-field" style="width:100%; padding:6px 10px;">
+                  <option value="">Semua Aksi</option>
+                  <option value="APPROVE">APPROVE (Setuju)</option>
+                  <option value="REJECT">REJECT (Tolak)</option>
+                  <option value="LOGIN">LOGIN</option>
+                  <option value="LOGOUT">LOGOUT</option>
+                  <option value="LOGIN_FAIL">LOGIN FAIL</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Filter Jaringan</label>
+                <select id="audit-filter-network" class="search-field" style="width:100%; padding:6px 10px;">
+                  <option value="">Semua Jaringan</option>
+                  <option value="WEB-LAN">WEB-LAN (Jaringan Kantor)</option>
+                  <option value="WEB-EXT">WEB-EXT (Luar Kantor/Internet)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Cari Ref / Catatan</label>
+                <input type="text" id="audit-filter-search" placeholder="🔍 Cari..." class="search-field" style="width:100%; padding:6px 10px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>User ID</th>
+                  <th>Modul</th>
+                  <th>Aksi</th>
+                  <th>Ref ID</th>
+                  <th>IP Client & Network</th>
+                  <th>Catatan Audit</th>
+                </tr>
+              </thead>
+              <tbody id="audit-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-backdrop hidden">
+    <div class="modal-card detail-modal-card">
+      <div class="modal-header">
+        <h3 id="detail-title">Detail Permohonan</h3>
+        <button class="close-btn" id="close-detail-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="detail-body"></div>
+      <div class="modal-footer" id="detail-footer"></div>
+    </div>
+  </div>
+
+  <!-- Approval Confirmation Modal -->
+  <div id="approve-modal" class="modal-backdrop hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header modal-header-success">
+        <div class="modal-title-box">
+          <span class="modal-title-icon">✅</span>
+          <h3>Konfirmasi Persetujuan</h3>
+        </div>
+        <button class="close-btn" id="close-approve-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">Apakah Anda yakin ingin menyetujui (Approve) permohonan otorisasi berikut?</p>
+        
+        <div class="detail-summary-card">
+          <div class="summary-row">
+            <span class="summary-label">Modul:</span>
+            <strong class="summary-value" id="approve-module-name">-</strong>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">ID Permohonan:</span>
+            <strong class="summary-value highlight-id" id="approve-ref-id">-</strong>
+          </div>
+          <div class="summary-row" id="approve-person-row">
+            <span class="summary-label">Nama Nasabah:</span>
+            <span class="summary-value" id="approve-person-name">-</span>
+          </div>
+          <div class="summary-row" id="approve-amount-row">
+            <span class="summary-label">Nominal:</span>
+            <span class="summary-value highlight-amount" id="approve-amount">-</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label for="approve-note">Catatan Supervisor (Opsional)</label>
+          <input type="text" id="approve-note" placeholder="Contoh: Dokumen lengkap & terverifikasi" class="search-field" style="width:100%;">
+        </div>
+        <div id="approve-error" class="alert alert-danger hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-approve-btn">Batal</button>
+        <button class="btn btn-success" id="confirm-approve-btn">
+          <span>✅ Ya, Setujui Sekarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejection Modal -->
+  <div id="reject-modal" class="modal-backdrop hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Konfirmasi Penolakan</h3>
+        <button class="close-btn" id="close-reject-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Masukkan alasan penolakan permohonan <strong id="reject-ref-id"></strong>:</p>
+        <div class="preset-pills">
+          <button class="pill-btn" onclick="setRejectReason('Data tidak lengkap')">Data tidak lengkap</button>
+          <button class="pill-btn" onclick="setRejectReason('Nominal tidak sesuai')">Nominal tidak sesuai</button>
+          <button class="pill-btn" onclick="setRejectReason('Dokumen kadaluarsa')">Dokumen kadaluarsa</button>
+          <button class="pill-btn" onclick="setRejectReason('Beda spesifikasi')">Beda spesifikasi</button>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+          <textarea id="reject-reason" rows="3" placeholder="Tuliskan alasan penolakan secara jelas (min 5 karakter)..." required></textarea>
+        </div>
+        <div id="reject-error" class="alert alert-danger hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-reject-btn">Batal</button>
+        <button class="btn btn-danger" id="confirm-reject-btn">Tolak Permohonan</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=3.0.0"></script>
+</body>
+</html>
