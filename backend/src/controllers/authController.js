@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../config/jwt');
 const { getPool, resolveDbConfig, listAvailableDatabases, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
