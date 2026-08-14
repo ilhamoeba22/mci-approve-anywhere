@@ -208,14 +208,14 @@ async function writeAuditLog({
     try {
       await pool.request()
         .input('tgl', mssql.VarChar(8), tglToday)
-        .input('modul', mssql.VarChar(30), 'WEB_OTORISASI')
-        .input('term', mssql.VarChar(30), networkType)
-        .input('ip', mssql.VarChar(50), clientIp)
-        .input('jamin', mssql.VarChar(6), jamNow)
-        .input('jamout', mssql.VarChar(8), tglToday)
+        .input('modul', mssql.VarChar(10), 'WEB_OTR')
+        .input('term', mssql.VarChar(10), networkType.substring(0, 10))
+        .input('ip', mssql.VarChar(20), clientIp.substring(0, 20))
+        .input('jamin', mssql.VarChar(10), jamNow)
+        .input('jamout', mssql.VarChar(10), tglToday)
         .input('userid', mssql.VarChar(10), cleanUserid)
-        .input('ket', mssql.VarChar(255), logDesc.substring(0, 255))
-        .input('fungsi', mssql.VarChar(50), cleanAksi.substring(0, 50))
+        .input('ket', mssql.VarChar(100), logDesc.substring(0, 100))
+        .input('fungsi', mssql.VarChar(2), cleanAksi.substring(0, 2))
         .query(`
           INSERT INTO TOFLOGACT (tgl, modul, term, ip, jamin, jamout, userid, ket, fungsi)
           VALUES (@tgl, @modul, @term, @ip, @jamin, @jamout, @userid, @ket, @fungsi)
@@ -227,16 +227,18 @@ async function writeAuditLog({
     // 4. Insert into AUDITLOG (MitraSoft Core Account Audit Table)
     if (cleanRefId) {
       try {
+        const logIdVal = String(Date.now()).substring(3, 13);
         await pool.request()
+          .input('logid', mssql.VarChar(10), logIdVal)
           .input('loguid', mssql.VarChar(10), cleanUserid)
           .input('logtgl', mssql.VarChar(8), tglToday)
-          .input('logjam', mssql.VarChar(6), jamNow)
-          .input('logterm', mssql.VarChar(10), networkType)
-          .input('logacc', mssql.VarChar(50), cleanRefId)
-          .input('logket', mssql.VarChar(255), logDesc.substring(0, 255))
+          .input('logjam', mssql.VarChar(8), jamNow)
+          .input('logterm', mssql.VarChar(8), networkType.substring(0, 8))
+          .input('logacc', mssql.VarChar(11), cleanRefId.substring(0, 11))
+          .input('logket', mssql.VarChar(50), logDesc.substring(0, 50))
           .query(`
-            INSERT INTO AUDITLOG (loguid, logtgl, logjam, logterm, logacc, logket)
-            VALUES (@loguid, @logtgl, @logjam, @logterm, @logacc, @logket)
+            INSERT INTO AUDITLOG (logid, loguid, logtgl, logjam, logterm, logacc, logket)
+            VALUES (@logid, @loguid, @logtgl, @logjam, @logterm, @logacc, @logket)
           `);
       } catch (audErr) {
         console.warn('[AuditLogger] AUDITLOG write warning:', audErr.message);
