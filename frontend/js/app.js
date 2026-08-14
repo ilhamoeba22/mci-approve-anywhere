@@ -943,10 +943,6 @@ function renderTable(data, moduleKey) {
             <span class="btn-icon">✔</span>
             <span class="btn-label">Setuju</span>
           </button>
-          <button class="btn btn-danger btn-sm btn-icon-only" title="Tolak Permohonan" onclick="openRejectModal('${moduleKey}', '${idVal}')">
-            <span class="btn-icon">✖</span>
-            <span class="btn-label">Tolak</span>
-          </button>
         </div>
       </td>
     </tr>`;
@@ -1683,8 +1679,7 @@ function renderDetailDrawer(row, moduleKey, idVal) {
   // Add Action buttons directly inside Detail Drawer Footer!
   document.getElementById('detail-footer').innerHTML = `
     <button class="btn btn-secondary" onclick="hideDetailModal()">Tutup</button>
-    <button class="btn btn-danger" onclick="hideDetailModal(); openRejectModal('${moduleKey}', '${idVal}')">❌ Tolak Permohonan</button>
-    <button class="btn btn-success" onclick="hideDetailModal(); openApproveModal('${moduleKey}', '${idVal}')">✅ Setuju Permohonan</button>
+    <button class="btn btn-success" onclick="hideDetailModal(); openApproveModal('${moduleKey}', '${idVal}')">✅ Setuju / Otorisasi Permohonan</button>
   `;
 
   document.getElementById('detail-modal').classList.remove('hidden');
