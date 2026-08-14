@@ -674,8 +674,8 @@ function showAppShell() {
   document.getElementById('user-name-display').textContent = state.user.nmuser || state.user.userid;
   document.getElementById('user-level-display').textContent = `LEVEL ${state.user.levelx}`;
 
-  const dbName = state.user.db_name || state.user.target_db || 'MCI_JULI_31072026';
-  const dbServer = state.user.db_server || '192.168.1.130';
+  const dbName = state.user.db_name || state.user.target_db || 'BPRS_MCI';
+  const dbServer = state.user.db_server || 'iba-net.02.mglobalperdana.com';
   document.getElementById('db-name-display').textContent = `${dbName} (${dbServer})`;
 
   // Render division menus based on user database permissions

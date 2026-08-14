@@ -51,7 +51,7 @@ async function verifyToken(req, res, next) {
     }
 
     // Connect to the user's chosen target database!
-    const targetDb = decoded.target_db || 'MCI_JULI_31072026';
+    const targetDb = decoded.target_db || 'BPRS_MCI';
     const pool = await getPool(targetDb);
 
     const sessionQuery = `

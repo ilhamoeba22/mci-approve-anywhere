@@ -71,30 +71,16 @@ function parseDbHumanLabel(dbName) {
 // Target DB Connection Config Resolver
 function resolveDbConfig(targetDb) {
   const dbKey = (targetDb || '').trim();
+  const dbName = (dbKey === 'BPRS_MCI_LIVE' || dbKey.toUpperCase() === 'BPRS_MCI' || !dbKey) ? 'BPRS_MCI' : dbKey;
 
-  // 1. Live Production Server
-  if (dbKey === 'BPRS_MCI_LIVE' || dbKey.toUpperCase() === 'BPRS_MCI') {
-    return {
-      key: 'BPRS_MCI_LIVE',
-      displayName: 'BPRS_MCI (Live Production)',
-      server: process.env.DB_HOST || 'iba-net.02.mglobalperdana.com',
-      port: parseInt(process.env.DB_PORT || '44333', 10),
-      database: 'BPRS_MCI',
-      user: process.env.DB_USER || 'saiba',
-      password: process.env.DB_PASS || 'YkETOrtaVerLEMOn'
-    };
-  }
-
-  // 2. Local Server Databases (Default: MCI_JULI_31072026)
-  const localDbName = dbKey || process.env.DB_NAME || 'MCI_JULI_31072026';
   return {
-    key: localDbName,
-    displayName: `${localDbName} (Local Server)`,
-    server: process.env.DB_HOST || '192.168.1.130',
+    key: dbName === 'BPRS_MCI' ? 'BPRS_MCI_LIVE' : dbName,
+    displayName: `${dbName} (Live Production Server)`,
+    server: process.env.DB_HOST || 'iba-net.02.mglobalperdana.com',
     port: parseInt(process.env.DB_PORT || '44333', 10),
-    database: localDbName,
-    user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASS || 'bon'
+    database: dbName,
+    user: process.env.DB_USER || 'saiba',
+    password: process.env.DB_PASS || 'YkETOrtaVerLEMOn'
   };
 }
 

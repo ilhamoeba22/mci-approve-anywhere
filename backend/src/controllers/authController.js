@@ -356,7 +356,7 @@ async function logout(req, res, next) {
   try {
     const userid = req.user ? req.user.userid : null;
     const sessionid = req.user ? req.user.sessionid : null;
-    const targetDb = req.user ? req.user.target_db : 'MCI_JULI_31072026';
+    const targetDb = req.user ? req.user.target_db : 'BPRS_MCI';
 
     // Clear HttpOnly Cookies
     res.clearCookie('token');
