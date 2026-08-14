@@ -1037,7 +1037,7 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><strong>${row.namasid || row.nm || '-'}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nama Ibu Kandung</span>
+            <span class="detail-field-label">Nama Ibu Kandung / Wali</span>
             <span class="detail-field-value">${row.nmibu || row.namaibu || '-'}</span>
           </div>
           <div class="detail-field">
