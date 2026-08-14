@@ -48,7 +48,7 @@
         <button type="button" id="biometric-login-btn" class="btn-biometric hidden">
           <span>👆 Login Cepat Fingerprint / FaceID</span>
         </button>
-        <button type="button" id="manual-pwa-install-btn" class="btn btn-outline btn-block hidden" style="margin-top: 10px; border-color: #059669; color: #34d399;">
+        <button type="button" id="manual-pwa-install-btn" class="btn btn-outline btn-block" onclick="if(window.triggerPwaInstall){window.triggerPwaInstall();}else{alert('Fitur PWA sedang memuat, silakan coba 1 detik lagi.');}" style="margin-top: 12px; border-color: #059669; color: #34d399; font-weight: 700;">
           <span>📱 Install Aplikasi Mobile (Android & iOS)</span>
         </button>
       </form>
