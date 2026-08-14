@@ -15,6 +15,17 @@
     });
   }
 
+  // Detect iOS Safari
+  const isIos = () => {
+    const ua = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(ua);
+  };
+
+  // Detect if App is already running in Standalone Display Mode
+  const isStandalone = () => {
+    return (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
+  };
+
   // Detect Mobile User Agent
   const isMobile = () => {
     const ua = window.navigator.userAgent.toLowerCase();
@@ -97,10 +108,10 @@
     renderInstallBanner();
   });
 
-  // Always show banner on mobile devices after 1.5s if not installed
+  // Always show banner on mobile devices after 1s if not installed
   window.addEventListener('load', () => {
     if (isMobile() && !isStandalone()) {
-      setTimeout(renderInstallBanner, 1500);
+      setTimeout(renderInstallBanner, 1000);
     }
 
     const manualBtn = document.getElementById('manual-pwa-install-btn');
