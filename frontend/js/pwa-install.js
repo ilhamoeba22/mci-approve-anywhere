@@ -15,14 +15,10 @@
     });
   }
 
-  // Detect iOS Safari
-  const isIos = () => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent);
-  };
-
-  const isStandalone = () => {
-    return (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
+  // Detect Mobile User Agent
+  const isMobile = () => {
+    const ua = window.navigator.userAgent.toLowerCase();
+    return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/.test(ua);
   };
 
   // Render PWA Install Banner UI
@@ -42,7 +38,7 @@
           <div class="pwa-banner-icon">📱</div>
           <div class="pwa-banner-text">
             <strong>Install Aplikasi Approval Anywhere</strong>
-            <p>Ketuk tombol <span class="pwa-share-icon">⎋</span> (Bagikan) lalu pilih <strong>"Tambahkan ke Layar Utama"</strong></p>
+            <p>Ketuk tombol <span class="pwa-share-icon">⎋</span> (Bagikan) di Safari ➔ pilih <strong>"Tambahkan ke Layar Utama"</strong></p>
           </div>
           <button class="pwa-banner-close" onclick="document.getElementById('pwa-install-banner').remove()">✕</button>
         </div>
@@ -53,7 +49,7 @@
           <div class="pwa-banner-icon">📱</div>
           <div class="pwa-banner-text">
             <strong>Install Aplikasi Mobile Approval Anywhere</strong>
-            <p>Dapatkan pengalaman aplikasi native di HP Anda</p>
+            <p>Pasang di HP Android Anda untuk otorisasi cepat</p>
           </div>
           <button id="pwa-install-btn" class="btn btn-primary btn-sm">Install App</button>
           <button class="pwa-banner-close" onclick="document.getElementById('pwa-install-banner').remove()">✕</button>
@@ -66,15 +62,33 @@
     const installBtn = document.getElementById('pwa-install-btn');
     if (installBtn) {
       installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log('[PWA] User response to install prompt:', outcome);
-        deferredPrompt = null;
-        banner.remove();
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log('[PWA] User response to install prompt:', outcome);
+          deferredPrompt = null;
+          banner.remove();
+        } else {
+          alert('📱 Cara Instal di Android:\n\n1. Ketuk menu 3 titik (⋮) di kanan atas Chrome\n2. Pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama"\n3. Aplikasi akan otomatis muncul di menu HP Anda!');
+        }
       });
     }
   }
+
+  // Global window handle to trigger install
+  window.triggerPwaInstall = function() {
+    if (isStandalone()) {
+      alert('Aplikasi Approval Anywhere sudah terinstal di HP Anda!');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+    } else if (isIos()) {
+      alert('📱 Cara Instal di iPhone / iOS:\n\n1. Ketuk tombol Bagikan (⎋) di Safari\n2. Pilih "Tambahkan ke Layar Utama"\n3. Tekan Tambah di kanan atas!');
+    } else {
+      alert('📱 Cara Instal di Android:\n\n1. Ketuk menu 3 titik (⋮) di kanan atas Chrome\n2. Pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama"\n3. Aplikasi akan otomatis muncul di menu HP Anda!');
+    }
+  };
 
   // Listen for beforeinstallprompt event on Android/Chrome
   window.addEventListener('beforeinstallprompt', e => {
@@ -83,10 +97,18 @@
     renderInstallBanner();
   });
 
-  // Render iOS Safari Banner after load
+  // Always show banner on mobile devices after 1.5s if not installed
   window.addEventListener('load', () => {
-    if (isIos() && !isStandalone()) {
-      setTimeout(renderInstallBanner, 2000);
+    if (isMobile() && !isStandalone()) {
+      setTimeout(renderInstallBanner, 1500);
+    }
+
+    const manualBtn = document.getElementById('manual-pwa-install-btn');
+    if (manualBtn) {
+      manualBtn.addEventListener('click', window.triggerPwaInstall);
+      if (isMobile() && !isStandalone()) {
+        manualBtn.classList.remove('hidden');
+      }
     }
   });
 })();
