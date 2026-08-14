@@ -1319,9 +1319,10 @@ body { font-family: var(--font-main); background-color: var(--bg-dark); color: v
   border-color: #34d399;
 }
 
-/* Hide Biometric Fingerprint Button & Mobile PWA Banner on Desktop/Laptop Screens (> 1024px) */
+/* Hide Biometric Fingerprint Button, Install App Buttons & Mobile PWA Banner on Desktop/Laptop Screens (> 1024px) */
 @media (min-width: 1025px) {
   .btn-biometric,
+  #manual-pwa-install-btn,
   .pwa-install-banner {
     display: none !important;
   }
