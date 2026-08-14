@@ -932,6 +932,8 @@ function renderTable(data, moduleKey) {
       html += `<td>${val || '-'}</td>`;
     });
 
+    const isRejectHidden = ['cif_perorangan', 'cif_badanhukum', 'tabungan', 'deposito', 'pembiayaan'].includes(moduleKey);
+
     html += `
       <td>
         <div class="table-action-btns">
@@ -943,6 +945,11 @@ function renderTable(data, moduleKey) {
             <span class="btn-icon">✔</span>
             <span class="btn-label">Setuju</span>
           </button>
+          ${!isRejectHidden ? `
+          <button class="btn btn-danger btn-sm btn-icon-only" title="Tolak Permohonan" onclick="openRejectModal('${moduleKey}', '${idVal}')">
+            <span class="btn-icon">✖</span>
+            <span class="btn-label">Tolak</span>
+          </button>` : ''}
         </div>
       </td>
     </tr>`;
@@ -1676,9 +1683,12 @@ function renderDetailDrawer(row, moduleKey, idVal) {
 
   document.getElementById('detail-body').innerHTML = html;
 
+  const isRejectHidden = ['cif_perorangan', 'cif_badanhukum', 'tabungan', 'deposito', 'pembiayaan'].includes(moduleKey);
+
   // Add Action buttons directly inside Detail Drawer Footer!
   document.getElementById('detail-footer').innerHTML = `
     <button class="btn btn-secondary" onclick="hideDetailModal()">Tutup</button>
+    ${!isRejectHidden ? `<button class="btn btn-danger" onclick="hideDetailModal(); openRejectModal('${moduleKey}', '${idVal}')">❌ Tolak Permohonan</button>` : ''}
     <button class="btn btn-success" onclick="hideDetailModal(); openApproveModal('${moduleKey}', '${idVal}')">✅ Setuju / Otorisasi Permohonan</button>
   `;
 
