@@ -1450,3 +1450,38 @@ body, html {
     padding: 10px 14px !important;
   }
 }
+
+/* Responsive Table Action Buttons (Icon Only on Mobile, Icon + Label on Desktop) */
+.table-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.table-action-btns .btn-icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .table-action-btns {
+    gap: 4px !important;
+  }
+
+  .table-action-btns .btn-icon-only {
+    padding: 6px 10px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    font-size: 1.05rem !important;
+    justify-content: center !important;
+  }
+
+  .table-action-btns .btn-label {
+    display: none !important;
+  }
+}

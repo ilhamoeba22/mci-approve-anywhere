@@ -920,10 +920,19 @@ function renderTable(data, moduleKey) {
 
     html += `
       <td>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-secondary btn-sm" onclick="viewDetail('${moduleKey}', ${idx})">🔍 Detail</button>
-          <button class="btn btn-success btn-sm" onclick="approveRecord('${moduleKey}', '${idVal}')">✅ Setuju</button>
-          <button class="btn btn-danger btn-sm" onclick="openRejectModal('${moduleKey}', '${idVal}')">❌ Tolak</button>
+        <div class="table-action-btns">
+          <button class="btn btn-secondary btn-sm btn-icon-only" title="Lihat Detail Data" onclick="viewDetail('${moduleKey}', ${idx})">
+            <span class="btn-icon">🔍</span>
+            <span class="btn-label">Detail</span>
+          </button>
+          <button class="btn btn-success btn-sm btn-icon-only" title="Setujui Permohonan" onclick="approveRecord('${moduleKey}', '${idVal}')">
+            <span class="btn-icon">✔</span>
+            <span class="btn-label">Setuju</span>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon-only" title="Tolak Permohonan" onclick="openRejectModal('${moduleKey}', '${idVal}')">
+            <span class="btn-icon">✖</span>
+            <span class="btn-label">Tolak</span>
+          </button>
         </div>
       </td>
     </tr>`;
