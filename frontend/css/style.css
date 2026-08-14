@@ -1181,33 +1181,35 @@ body { font-family: var(--font-main); background-color: var(--bg-dark); color: v
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: #0f172a;
+  border: 1px solid #334155;
   border-radius: 20px;
   padding: 4px 12px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #38bdf8;
   letter-spacing: 0.5px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .session-timer-badge:hover {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #1e293b;
+  border-color: #475569;
+  color: #7dd3fc;
 }
 
 .session-timer-badge.warning {
-  background: rgba(245, 158, 11, 0.25);
-  border-color: rgba(245, 158, 11, 0.6);
+  background: #451a03;
+  border-color: #f59e0b;
   color: #fbbf24;
 }
 
 .session-timer-badge.critical {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: rgba(239, 68, 68, 0.8);
+  background: #450a0a;
+  border-color: #ef4444;
   color: #fca5a5;
   animation: timerPulse 1s infinite alternate ease-in-out;
 }
