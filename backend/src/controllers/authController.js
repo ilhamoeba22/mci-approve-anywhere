@@ -407,7 +407,7 @@ async function biometricLogin(req, res, next) {
   try {
     const dbKey = target_db || 'BPRS_MCI_LIVE';
     const pool = await getPool(dbKey);
-    const dbInfo = DB_CONFIGS[dbKey] || { database: 'BPRS_MCI', server: 'iba-net.02.mglobalperdana.com', key: 'BPRS_MCI_LIVE' };
+    const dbInfo = resolveDbConfig(dbKey);
 
     const query = `
       SELECT userid, nmuser, pass, passweb, levelx, stsaktiv, limitldr, limitcdr, limitccr, kdloc, kdcab, dept, akses 
