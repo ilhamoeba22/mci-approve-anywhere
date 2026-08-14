@@ -186,25 +186,71 @@ function formatMakerDate(val) {
   return str;
 }
 
-// Idle Inactivity Auto-Logout Manager (15 Minutes = 900,000 ms)
+// Idle Inactivity Auto-Logout & Live Countdown Manager (15 Minutes = 900 Seconds)
 let idleTimer = null;
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+let countdownInterval = null;
+const IDLE_TIMEOUT_SECONDS = 15 * 60; // 900 seconds
+let remainingSeconds = IDLE_TIMEOUT_SECONDS;
+
+function formatCountdown(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+  const timerDisplayEl = document.getElementById('session-timer-display');
+  const timerBadgeEl = document.getElementById('session-timer-badge');
+  
+  if (!timerDisplayEl || !timerBadgeEl) return;
+  
+  timerDisplayEl.textContent = formatCountdown(remainingSeconds);
+  
+  // Dynamic Badge Color Indicator based on remaining time
+  if (remainingSeconds <= 60) {
+    timerBadgeEl.className = 'session-timer-badge critical';
+  } else if (remainingSeconds <= 300) { // < 5 minutes
+    timerBadgeEl.className = 'session-timer-badge warning';
+  } else {
+    timerBadgeEl.className = 'session-timer-badge';
+  }
+}
 
 function resetIdleTimer() {
   if (!state.user) return;
+  
+  // Reset remaining seconds back to 15:00
+  remainingSeconds = IDLE_TIMEOUT_SECONDS;
+  updateTimerDisplay();
+
+  // Reset timeout timer
   if (idleTimer) clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
     if (state.user) {
-      alert('Sesi Anda telah berakhir secara otomatis demi keamanan karena tidak ada aktivitas selama 15 menit.');
+      if (countdownInterval) clearInterval(countdownInterval);
+      showToast('Sesi Berakhir ⚠️', 'Sesi Anda telah berakhir secara otomatis karena tidak ada aktivitas selama 15 menit.', 'warning');
       logout();
     }
-  }, IDLE_TIMEOUT_MS);
+  }, IDLE_TIMEOUT_SECONDS * 1000);
 }
 
 function initIdleTimer() {
+  // Clear any existing interval
+  if (countdownInterval) clearInterval(countdownInterval);
+  
+  // Start live 1-second countdown interval
+  countdownInterval = setInterval(() => {
+    if (state.user && remainingSeconds > 0) {
+      remainingSeconds--;
+      updateTimerDisplay();
+    }
+  }, 1000);
+
+  // User activity listeners (mousemove, keydown, click, scroll, touchstart)
   ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
     window.addEventListener(evt, resetIdleTimer, { passive: true });
   });
+
   resetIdleTimer();
 }
 
