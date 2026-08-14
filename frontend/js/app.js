@@ -371,10 +371,42 @@ document.addEventListener('DOMContentLoaded', () => {
   safeAddListener('biometric-login-btn', 'click', async () => {
     try {
       if (!window.BiometricManager) return;
-      const res = await BiometricManager.authenticate();
-      if (res && res.userId) {
-        document.getElementById('userid').value = res.userId;
-        showToast('Verifikasi Biometrik Sukses 👆', `Fingerprint terverifikasi untuk user ${res.userId}. Masukkan password Anda.`, 'info');
+
+      const lastUser = localStorage.getItem('last_biometric_user') || (document.getElementById('userid') ? document.getElementById('userid').value : '');
+      if (!lastUser) {
+        showToast('Biometrik Belum Terdaftar', 'Silakan login dengan User ID & Password 1x terlebih dahulu untuk mendaftarkan Fingerprint / FaceID.', 'warning');
+        return;
+      }
+
+      showToast('Biometrik Scan', 'Silakan tempelkan sidik jari atau scan FaceID di HP Anda...', 'info');
+      const bioRes = await BiometricManager.authenticate(lastUser);
+      
+      if (bioRes && bioRes.userId) {
+        const targetDbSelect = document.getElementById('target-db-select');
+        const targetDb = targetDbSelect ? targetDbSelect.value : 'BPRS_MCI_LIVE';
+
+        showToast('Fingerprint Berhasil 👆', `Sidik jari terverifikasi untuk ${bioRes.userId}. Mengakses portal...`, 'success');
+
+        const response = await fetch('/api/auth/biometric-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userid: bioRes.userId,
+            target_db: targetDb
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 'success') {
+          state.user = data.user;
+          state.token = data.token;
+          showAppShell();
+          loadDashboardData();
+          showToast('Login Biometrik Sukses', `Selamat datang kembali, ${data.user.nmuser || data.user.userid}!`, 'success');
+        } else {
+          showToast('Login Gagal', data.message || 'Gagal login biometrik.', 'error');
+        }
       }
     } catch (bioErr) {
       showToast('Biometrik Gagal', bioErr.message || 'Verifikasi biometrik dibatalkan.', 'warning');

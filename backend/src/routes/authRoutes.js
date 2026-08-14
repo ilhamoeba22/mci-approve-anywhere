@@ -6,6 +6,7 @@ const { verifyToken } = require('../middleware/auth');
 // Public routes
 router.get('/databases', authController.getAvailableDatabases);
 router.post('/login', authController.login);
+router.post('/biometric-login', authController.biometricLogin);
 router.post('/refresh', authController.refreshToken);
 
 // Protected routes

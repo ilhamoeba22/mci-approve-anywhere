@@ -394,6 +394,125 @@ async function logout(req, res, next) {
   }
 }
 
+async function biometricLogin(req, res, next) {
+  const { userid, target_db } = req.body;
+
+  if (!userid) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'User ID wajib diisi untuk Biometric Login'
+    });
+  }
+
+  try {
+    const dbKey = target_db || 'BPRS_MCI_LIVE';
+    const pool = await getPool(dbKey);
+    const dbInfo = DB_CONFIGS[dbKey] || { database: 'BPRS_MCI', server: 'iba-net.02.mglobalperdana.com', key: 'BPRS_MCI_LIVE' };
+
+    const query = `
+      SELECT userid, nmuser, pass, passweb, levelx, stsaktiv, limitldr, limitcdr, limitccr, kdloc, kdcab, dept, akses 
+      FROM USERPROFILE 
+      WHERE UPPER(RTRIM(LTRIM(userid))) = UPPER(@userid)
+    `;
+    const result = await pool.request()
+      .input('userid', mssql.VarChar(10), userid.trim())
+      .query(query);
+
+    if (result.recordset.length === 0) {
+      return res.status(401).json({
+        status: 'error',
+        message: `User ID '${userid}' tidak ditemukan di database`
+      });
+    }
+
+    const user = result.recordset[0];
+    const sts = user.stsaktiv ? String(user.stsaktiv).trim().toUpperCase() : '1';
+    if (sts === '0' || sts === 'N') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Akun Anda sedang tidak aktif. Hubungi administrator.'
+      });
+    }
+
+    const userLevel = (user.levelx || '').trim().toUpperCase();
+    const isAuthorizedForPortal = ['A', 'M', 'S'].includes(userLevel);
+
+    if (!isAuthorizedForPortal) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Akses ditolak: User ID Anda tidak mempunyai wewenang otorisasi'
+      });
+    }
+
+    // Session Management
+    const sessionId = `SES_BIO_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    await pool.request()
+      .input('userid', mssql.VarChar(10), user.userid)
+      .query("DELETE FROM WEBUSERSESSION WHERE userid = @userid AND appid = 'OTRS'");
+
+    await pool.request()
+      .input('userid', mssql.VarChar(10), user.userid)
+      .input('sessionid', mssql.VarChar(100), sessionId)
+      .query("INSERT INTO WEBUSERSESSION (userid, appid, sessionid) VALUES (@userid, 'OTRS', @sessionid)");
+
+    const tokenPayload = {
+      userid: user.userid,
+      nmuser: user.nmuser ? user.nmuser.trim() : user.userid,
+      levelx: userLevel,
+      akses: user.akses ? String(user.akses).trim() : '',
+      limitldr: Number(user.limitldr || 0),
+      limitcdr: Number(user.limitcdr || 0),
+      kdloc: user.kdloc ? user.kdloc.trim() : null,
+      kdcab: user.kdcab ? user.kdcab.trim() : null,
+      target_db: dbInfo.key,
+      db_name: dbInfo.database,
+      db_server: dbInfo.server,
+      sessionid: sessionId
+    };
+
+    const token = generateToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000 });
+    res.cookie('refresh_token', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 24 * 60 * 60 * 1000 });
+
+    await writeAuditLog({
+      userid: user.userid,
+      modul: 'AUTH',
+      aksi: 'LOGIN_BIOMETRIC',
+      catatan: `Login Cepat Biometrik (Fingerprint/FaceID) Sukses ke DB '${dbInfo.database}'`,
+      req,
+      rc: '00',
+      rcdesc: 'Biometric Login Success'
+    });
+
+    return res.json({
+      status: 'success',
+      message: `Login Biometrik Berhasil untuk ${user.nmuser || user.userid}`,
+      token,
+      refreshToken,
+      user: {
+        userid: user.userid,
+        nmuser: user.nmuser ? user.nmuser.trim() : user.userid,
+        levelx: userLevel,
+        akses: user.akses ? String(user.akses).trim() : '',
+        limitldr: Number(user.limitldr || 0),
+        limitcdr: Number(user.limitcdr || 0),
+        kdloc: user.kdloc ? user.kdloc.trim() : null,
+        kdcab: user.kdcab ? user.kdcab.trim() : null,
+        target_db: dbInfo.key,
+        db_name: dbInfo.database,
+        db_server: dbInfo.server,
+        sessionid: sessionId
+      }
+    });
+
+  } catch (err) {
+    console.error('[Auth] Biometric login error:', err);
+    next(err);
+  }
+}
+
 async function getAvailableDatabases(req, res, next) {
   try {
     const list = await listAvailableDatabases();
@@ -408,6 +527,7 @@ async function getAvailableDatabases(req, res, next) {
 
 module.exports = {
   login,
+  biometricLogin,
   getMe,
   logout,
   refreshToken,
