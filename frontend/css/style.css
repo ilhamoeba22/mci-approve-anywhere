@@ -1062,6 +1062,12 @@ body { font-family: var(--font-main); background-color: var(--bg-dark); color: v
 }
 
 @media (max-width: 1024px) {
+  .network-badge {
+    display: none !important;
+  }
+  .user-level-badge {
+    display: none !important;
+  }
   .brand-logo-desktop {
     display: none !important;
   }
