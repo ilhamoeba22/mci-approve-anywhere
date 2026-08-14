@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (state.token && state.user) {
     showAppShell();
+    loadDashboardData();
   } else {
     showLoginScreen();
   }
@@ -401,6 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok && data.status === 'success') {
           state.user = data.user;
           state.token = data.token;
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
           showAppShell();
           loadDashboardData();
           showToast('Login Biometrik Sukses', `Selamat datang kembali, ${data.user.nmuser || data.user.userid}!`, 'success');
