@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const { getPool, mssql } = require('../config/db');
 
@@ -202,7 +202,48 @@ async function writeAuditLog({
       .input('description', mssql.VarChar(255), logDesc.substring(0, 255))
       .query(webQuery);
 
-    // 3. Write to local log files (D:\Kerjaan\BASE AI\PROSES OTORISASI CIF\logs\)
+    // 3. Insert into TOFLOGACT (MitraSoft CBS Activity Log Table)
+    const tglToday = nowStr.substring(0, 8);
+    const jamNow = nowStr.substring(8, 14);
+    try {
+      await pool.request()
+        .input('tgl', mssql.VarChar(8), tglToday)
+        .input('modul', mssql.VarChar(30), 'WEB_OTORISASI')
+        .input('term', mssql.VarChar(30), networkType)
+        .input('ip', mssql.VarChar(50), clientIp)
+        .input('jamin', mssql.VarChar(6), jamNow)
+        .input('jamout', mssql.VarChar(8), tglToday)
+        .input('userid', mssql.VarChar(10), cleanUserid)
+        .input('ket', mssql.VarChar(255), logDesc.substring(0, 255))
+        .input('fungsi', mssql.VarChar(50), cleanAksi.substring(0, 50))
+        .query(`
+          INSERT INTO TOFLOGACT (tgl, modul, term, ip, jamin, jamout, userid, ket, fungsi)
+          VALUES (@tgl, @modul, @term, @ip, @jamin, @jamout, @userid, @ket, @fungsi)
+        `);
+    } catch (actErr) {
+      console.warn('[AuditLogger] TOFLOGACT write warning:', actErr.message);
+    }
+
+    // 4. Insert into AUDITLOG (MitraSoft Core Account Audit Table)
+    if (cleanRefId) {
+      try {
+        await pool.request()
+          .input('loguid', mssql.VarChar(10), cleanUserid)
+          .input('logtgl', mssql.VarChar(8), tglToday)
+          .input('logjam', mssql.VarChar(6), jamNow)
+          .input('logterm', mssql.VarChar(10), networkType)
+          .input('logacc', mssql.VarChar(50), cleanRefId)
+          .input('logket', mssql.VarChar(255), logDesc.substring(0, 255))
+          .query(`
+            INSERT INTO AUDITLOG (loguid, logtgl, logjam, logterm, logacc, logket)
+            VALUES (@loguid, @logtgl, @logjam, @logterm, @logacc, @logket)
+          `);
+      } catch (audErr) {
+        console.warn('[AuditLogger] AUDITLOG write warning:', audErr.message);
+      }
+    }
+
+    // 5. Write to local log files (D:\Kerjaan\BASE AI\PROSES OTORISASI CIF\logs\)
     appendLocalFileLog(auditData);
 
     return { success: true, timestamp: nowStr, networkType };
