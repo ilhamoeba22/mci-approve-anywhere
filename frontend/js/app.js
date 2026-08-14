@@ -1049,7 +1049,7 @@ function renderDetailDrawer(row, moduleKey, idVal) {
           </div>
           <div class="detail-field">
             <span class="detail-field-label">NIK Ibu Kandung / Wali</span>
-            <span class="detail-field-value">${row.nikibu || row.noidibu || row.nikwali || row.noidwali || row.no_idibu || row.idibu || '-'}</span>
+            <span class="detail-field-value">${row.nikibu || row.noidibu || row.nikwali || row.noidwali || row.nokk || row.noid || '-'}</span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Tempat Lahir</span>
