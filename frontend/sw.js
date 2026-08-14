@@ -3,7 +3,7 @@
  * Handles offline static caching and Web Push Notifications
  */
 
-const CACHE_NAME = 'mci-approve-v13.0.0';
+const CACHE_NAME = 'mci-approve-v14.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',

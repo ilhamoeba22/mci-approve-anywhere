@@ -14,9 +14,15 @@ window.BiometricManager = {
     );
   },
 
-  // Check if User Verifying Platform Authenticator (Fingerprint/FaceID) is available
+  // Check if User Verifying Platform Authenticator (Fingerprint/FaceID) is available (STRICTLY MOBILE & TABLET ONLY)
   isPlatformBiometricAvailable: async function() {
     if (!this.isSupported()) return false;
+
+    // Strictly disable biometrics on Desktop PC / Laptop (Windows, Mac Desktop, Linux)
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/.test(ua);
+    if (!isMobile) return false;
+
     try {
       return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     } catch (e) {
