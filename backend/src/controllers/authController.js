@@ -171,11 +171,10 @@ async function login(req, res, next) {
       });
     }
 
-    // Dynamic Authorization RBAC check against SQL Server USERPROFILE table (levelx, akses, limits)
+    // Strict Authorization RBAC check for Web Portal (Supervisor / Checker / Pejabat Only)
     const userLevel = (user.levelx || '').trim().toUpperCase();
-    const userAkses = (user.akses || '').trim();
     const hasLimitRights = (Number(user.limitldr || 0) > 0 || Number(user.limitcdr || 0) > 0 || Number(user.limitccr || 0) > 0);
-    const isAuthorizedForPortal = ['A', 'M', 'S'].includes(userLevel) || userAkses.includes('Y') || hasLimitRights;
+    const isAuthorizedForPortal = ['A', 'M', 'S'].includes(userLevel) || hasLimitRights;
 
     if (!isAuthorizedForPortal) {
       await writeAuditLog({
