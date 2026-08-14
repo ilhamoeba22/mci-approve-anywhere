@@ -560,14 +560,21 @@ function confirmLogout() {
 }
 
 function logout() {
-  if (state.token) {
-    apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-  }
+  const oldToken = state.token;
   state.token = null;
   state.user = null;
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   if (state.pollTimer) clearInterval(state.pollTimer);
+
+  if (oldToken) {
+    fetch('/api/auth/logout', { 
+      method: 'POST', 
+      headers: { 'Authorization': `Bearer ${oldToken}` },
+      credentials: 'same-origin'
+    }).catch(() => {});
+  }
+
   showLoginScreen();
 }
 

@@ -3,7 +3,7 @@
  * Handles offline static caching and Web Push Notifications
  */
 
-const CACHE_NAME = 'mci-approve-v16.0.0';
+const CACHE_NAME = 'mci-approve-v17.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,8 +12,6 @@ const STATIC_ASSETS = [
   './js/biometric.js',
   './js/pwa-install.js',
   './manifest.json',
-  './assets/logo.png',
-  './assets/logo-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
