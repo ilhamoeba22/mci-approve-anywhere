@@ -1169,8 +1169,8 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><span class="highlight-id">${row.notab || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nama Pemilik Rekening</span>
-            <span class="detail-field-value"><strong>${row.fnama || row.nm || '-'}</strong></span>
+            <span class="detail-field-label">Nama Pemilik / Nasabah</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${row.fnama || row.nm || row.nama || '-'}</strong></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Nama Panggilan</span>
@@ -1204,6 +1204,10 @@ function renderDetailDrawer(row, moduleKey, idVal) {
         <div class="detail-section-title">👤 Informasi Nasabah & Cabang Pembukuan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
+            <span class="detail-field-label">Nama Lengkap Nasabah</span>
+            <span class="detail-field-value"><strong>${row.fnama || row.nm || row.nama || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
             <span class="detail-field-label">No. CIF Nasabah</span>
             <span class="detail-field-value"><span class="highlight-id">${row.nocif || '-'}</span></span>
           </div>
@@ -1214,10 +1218,6 @@ function renderDetailDrawer(row, moduleKey, idVal) {
           <div class="detail-field">
             <span class="detail-field-label">Kode Lokasi Kantor</span>
             <span class="detail-field-value">${row.kodeloc || row.kdloc || '-'}</span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Status Record</span>
-            <span class="detail-field-value"><span class="badge badge-warning">Pending Otorisasi (${row.stsrec || 'N'})</span></span>
           </div>
         </div>
       </div>
@@ -1237,8 +1237,8 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><strong>${row.nobilyet || '-'}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nama Pemilik Deposan</span>
-            <span class="detail-field-value"><strong>${row.nama || row.fnama || '-'}</strong></span>
+            <span class="detail-field-label">Nama Pemilik Deposan / Nasabah</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${row.nama || row.fnama || row.nm || '-'}</strong></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Nominal Deposito (Plafon)</span>
@@ -1265,8 +1265,16 @@ function renderDetailDrawer(row, moduleKey, idVal) {
 
       <!-- Section 2: Kantor & Cabang -->
       <div class="detail-section">
-        <div class="detail-section-title">🏢 Informasi Kantor & Cabang</div>
+        <div class="detail-section-title">🏢 Informasi Nasabah, Kantor & Cabang</div>
         <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Lengkap Nasabah</span>
+            <span class="detail-field-value"><strong>${row.nama || row.fnama || row.nm || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">No. CIF Nasabah</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.nocif || '-'}</span></span>
+          </div>
           <div class="detail-field">
             <span class="detail-field-label">Kode Cabang</span>
             <span class="detail-field-value">${row.kdcab || row.kodecab || '-'}</span>
@@ -1289,8 +1297,8 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nama Debitur</span>
-            <span class="detail-field-value"><strong>${row.nm || row.nama || '-'}</strong></span>
+            <span class="detail-field-label">Nama Debitur / Nasabah</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${row.nm || row.nama || row.fnama || '-'}</strong></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Plafon Pembiayaan / Modal Awal</span>
@@ -1321,8 +1329,12 @@ function renderDetailDrawer(row, moduleKey, idVal) {
 
       <!-- Section 2: CIF & Cabang -->
       <div class="detail-section">
-        <div class="detail-section-title">👤 Informasi Debitur & Cabang</div>
+        <div class="detail-section-title">👤 Informasi Debitur / Nasabah & Cabang</div>
         <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Lengkap Debitur / Nasabah</span>
+            <span class="detail-field-value"><strong>${row.nm || row.nama || row.fnama || '-'}</strong></span>
+          </div>
           <div class="detail-field">
             <span class="detail-field-label">No. CIF Debitur</span>
             <span class="detail-field-value"><span class="highlight-id">${row.nocif || '-'}</span></span>
@@ -1347,6 +1359,10 @@ function renderDetailDrawer(row, moduleKey, idVal) {
           <div class="detail-field">
             <span class="detail-field-label">No. Urut Transaksi</span>
             <span class="detail-field-value"><span class="highlight-id">${row.notrn || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Nasabah / Pemilik Rekening</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${row.nm || row.nama || row.namanasabah || row.fnama || row.nm_nasabah || '-'}</strong></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Batch Teller</span>
@@ -1379,6 +1395,10 @@ function renderDetailDrawer(row, moduleKey, idVal) {
       <div class="detail-section">
         <div class="detail-section-title">🏢 Otorisasi Teller & Cabang</div>
         <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Nasabah Transaksi</span>
+            <span class="detail-field-value"><strong>${row.nm || row.nama || row.namanasabah || row.fnama || row.nm_nasabah || '-'}</strong></span>
+          </div>
           <div class="detail-field">
             <span class="detail-field-label">User Teller (Maker)</span>
             <span class="detail-field-value"><strong>${row.inpuser || '-'}</strong></span>

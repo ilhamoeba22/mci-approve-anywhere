@@ -11,10 +11,16 @@ async function getPendingTransaksi(req, res, next) {
   try {
     const pool = await getPool(req.user ? req.user.target_db : null);
     const result = await pool.request().query(`
-      SELECT tgltrn, batch, notrn, dracc, cracc, nominalrp, ket, kdloc, ststrn, inpuser, inptgl, autuser, auttgl
-      FROM TOFTRNC 
-      WHERE ststrn IN ('2', '6')
-      ORDER BY tgltrn DESC, batch DESC, notrn DESC
+      SELECT t.tgltrn, t.batch, t.notrn, t.dracc, t.cracc, t.nominalrp, t.ket, t.kdloc, t.ststrn, t.inpuser, t.inptgl, t.autuser, t.auttgl,
+             COALESCE(tb1.fnama, tb2.fnama, c1.nm, c2.nm, t.ket) AS nm,
+             COALESCE(tb1.fnama, tb2.fnama, c1.nm, c2.nm, '-') AS namanasabah
+      FROM TOFTRNC t
+      LEFT JOIN TOFTABB tb1 ON t.dracc = tb1.notab
+      LEFT JOIN TOFTABB tb2 ON t.cracc = tb2.notab
+      LEFT JOIN mCIF c1 ON tb1.nocif = c1.nocif
+      LEFT JOIN mCIF c2 ON tb2.nocif = c2.nocif
+      WHERE t.ststrn IN ('2', '6')
+      ORDER BY t.tgltrn DESC, t.batch DESC, t.notrn DESC
     `);
     return res.json({ status: 'success', total: result.recordset.length, data: result.recordset });
   } catch (err) {
