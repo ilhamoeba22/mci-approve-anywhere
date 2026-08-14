@@ -574,6 +574,13 @@ function logout() {
 function showLoginScreen() {
   loginScreen.classList.remove('hidden');
   appShell.classList.add('hidden');
+  
+  // Explicitly force hide all modals on login screen
+  ['logout-modal', 'detail-modal', 'reject-modal'].forEach(id => {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('hidden');
+  });
+
   loadLoginDatabases();
 }
 
