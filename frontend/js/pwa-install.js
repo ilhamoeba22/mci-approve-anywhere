@@ -32,9 +32,9 @@
     return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/.test(ua);
   };
 
-  // Render PWA Install Banner UI
+  // Render PWA Install Banner UI (STRICTLY MOBILE & TABLET ONLY)
   function renderInstallBanner() {
-    if (isStandalone()) return; // Already installed
+    if (isStandalone() || !isMobile()) return; // Do not render on desktop/laptop or inside installed standalone app
 
     const existing = document.getElementById('pwa-install-banner');
     if (existing) return;
