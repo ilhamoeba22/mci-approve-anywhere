@@ -171,10 +171,9 @@ async function login(req, res, next) {
       });
     }
 
-    // Strict Authorization RBAC check for Web Portal (Supervisor / Checker / Pejabat Only)
+    // Pure Level-Based Authorization RBAC check for Web Portal (levelx MUST be 'A', 'M', or 'S')
     const userLevel = (user.levelx || '').trim().toUpperCase();
-    const hasLimitRights = (Number(user.limitldr || 0) > 0 || Number(user.limitcdr || 0) > 0 || Number(user.limitccr || 0) > 0);
-    const isAuthorizedForPortal = ['A', 'M', 'S'].includes(userLevel) || hasLimitRights;
+    const isAuthorizedForPortal = ['A', 'M', 'S'].includes(userLevel);
 
     if (!isAuthorizedForPortal) {
       await writeAuditLog({
