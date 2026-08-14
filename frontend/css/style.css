@@ -1485,3 +1485,110 @@ body, html {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   Mobile Header Banner & Modal Body Padding Fixes
+   ========================================================================== */
+
+/* Mobile Detail Header Banner Fix */
+@media (max-width: 640px) {
+  .detail-header-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 14px 16px !important;
+  }
+
+  .detail-header-left {
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .detail-header-icon {
+    font-size: 1.5rem !important;
+    padding: 6px 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .detail-header-info h4 {
+    font-size: 0.98rem !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+  }
+
+  .detail-header-info .detail-sub {
+    font-size: 0.78rem !important;
+  }
+
+  .detail-status-pill {
+    align-self: flex-start !important;
+    font-size: 0.72rem !important;
+    padding: 3px 8px !important;
+  }
+}
+
+/* Modal Body Padding & Sticky Footer Alignment Fix */
+.modal-body {
+  padding: 20px 24px 40px 24px !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .modal-card {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+    max-height: 94vh !important;
+  }
+
+  .modal-body {
+    padding: 14px 14px 44px 14px !important;
+    max-height: calc(94vh - 130px) !important;
+  }
+
+  .modal-footer {
+    padding: 12px 14px !important;
+    background: var(--bg-card, #1e293b) !important;
+    border-top: 1px solid var(--border-color, #334155) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10 !important;
+  }
+}
+
+/* Mobile Typography Standardization Rules */
+@media (max-width: 768px) {
+  .detail-section-title {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    padding: 8px 10px !important;
+    margin-bottom: 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .detail-field-label {
+    font-size: 0.73rem !important;
+    font-weight: 600 !important;
+    color: var(--text-muted, #94a3b8) !important;
+    margin-bottom: 3px !important;
+    display: block !important;
+  }
+
+  .detail-field-value {
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: var(--text-main, #f8fafc) !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .badge {
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+}
