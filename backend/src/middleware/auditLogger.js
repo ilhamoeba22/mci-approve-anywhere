@@ -131,7 +131,7 @@ async function writeAuditLog({
   rcdesc = 'Success'
 }) {
   try {
-    const targetDb = req && req.user ? req.user.target_db : null;
+    const targetDb = (req && req.user && req.user.target_db ? req.user.target_db : null) || 'BPRS_MCI_LIVE';
     const pool = await getPool(targetDb);
 
     const clientIp = getClientIp(req);
