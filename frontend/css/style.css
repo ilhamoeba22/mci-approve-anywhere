@@ -1493,11 +1493,15 @@ body, html {
    ========================================================================== */
 
 /* Universal Modal Backdrop & Container Overhang Prevention */
-.modal-backdrop {
+.modal-backdrop:not(.hidden) {
   padding: 6px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.modal-backdrop.hidden {
+  display: none !important;
 }
 
 .modal-card, .detail-modal-card {
