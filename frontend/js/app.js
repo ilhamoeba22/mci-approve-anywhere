@@ -246,8 +246,8 @@ function initIdleTimer() {
     }
   }, 1000);
 
-  // User activity listeners (mousemove, keydown, click, scroll, touchstart)
-  ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+  // User explicit activity listeners (click, keydown, touchstart, scroll) - Excludes passive mousemove
+  ['click', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
     window.addEventListener(evt, resetIdleTimer, { passive: true });
   });
 
