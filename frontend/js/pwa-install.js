@@ -115,24 +115,27 @@
 
     if (isStandalone()) {
       // User is INSIDE the Installed PWA App:
-      // 1. HIDE the Install App button completely
       if (manualBtn) manualBtn.classList.add('hidden');
-      
-      // 2. SHOW Fingerprint / FaceID Login Button
-      if (bioBtn && window.BiometricManager && BiometricManager.isSupported()) {
+      if (bioBtn && isMobile() && window.BiometricManager && BiometricManager.isSupported()) {
         bioBtn.classList.remove('hidden');
+      } else if (bioBtn) {
+        bioBtn.classList.add('hidden');
       }
     } else {
       // User is in normal browser mode:
       if (isMobile()) {
         setTimeout(renderInstallBanner, 1000);
-      }
-      if (manualBtn) {
-        manualBtn.classList.remove('hidden');
-        manualBtn.addEventListener('click', window.triggerPwaInstall);
-      }
-      if (bioBtn && window.BiometricManager && BiometricManager.isSupported()) {
-        bioBtn.classList.remove('hidden');
+        if (manualBtn) {
+          manualBtn.classList.remove('hidden');
+          manualBtn.addEventListener('click', window.triggerPwaInstall);
+        }
+        if (bioBtn && window.BiometricManager && BiometricManager.isSupported()) {
+          bioBtn.classList.remove('hidden');
+        }
+      } else {
+        // Desktop / Laptop (Screen > 1024px)
+        if (manualBtn) manualBtn.classList.add('hidden');
+        if (bioBtn) bioBtn.classList.add('hidden');
       }
     }
   });
