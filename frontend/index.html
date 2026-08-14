@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Otorisasi Core Banking — MitraSoft CSBO</title>
-  <link rel="icon" type="image/png" href="img/icon_mci.png">
-  <link rel="shortcut icon" type="image/png" href="img/icon_mci.png">
-  <link rel="apple-touch-icon" href="img/icon_mci.png">
-  <link rel="stylesheet" href="css/style.css?v=3.1.0">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Approval Anywhere">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="shortcut icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css?v=3.2.0">
 </head>
 <body>
   <!-- Login Screen -->
@@ -39,6 +44,9 @@
         <button type="submit" id="login-btn" class="btn btn-primary btn-block">
           <span class="btn-text">Masuk ke Portal Otorisasi</span>
           <span class="spinner hidden"></span>
+        </button>
+        <button type="button" id="biometric-login-btn" class="btn-biometric hidden">
+          <span>👆 Login Cepat Fingerprint / FaceID</span>
         </button>
       </form>
       <div class="login-footer">
@@ -414,6 +422,8 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="js/biometric.js?v=1.0.0"></script>
+  <script src="js/pwa-install.js?v=1.0.0"></script>
   <script src="js/app.js?v=3.2.0"></script>
 </body>
 </html>

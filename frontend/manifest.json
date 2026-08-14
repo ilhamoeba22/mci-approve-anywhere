@@ -1,0 +1,42 @@
+{
+  "name": "Approval Anywhere — BPR Syariah HIK MCI",
+  "short_name": "Approval Anywhere",
+  "description": "Aplikasi Portal Otorisasi Mobile Real-Time BPR Syariah HIK MCI Yogyakarta",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#059669",
+  "theme_color": "#059669",
+  "lang": "id-ID",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "business"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard Otorisasi",
+      "short_name": "Dashboard",
+      "description": "Buka Ringkasan Dashboard Otorisasi",
+      "url": "./index.html#dashboard",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

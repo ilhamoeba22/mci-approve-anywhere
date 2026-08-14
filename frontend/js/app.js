@@ -368,6 +368,19 @@ document.addEventListener('DOMContentLoaded', () => {
   safeAddListener('cancel-logout-btn', 'click', hideLogoutModal);
   safeAddListener('confirm-logout-btn', 'click', confirmLogout);
 
+  safeAddListener('biometric-login-btn', 'click', async () => {
+    try {
+      if (!window.BiometricManager) return;
+      const res = await BiometricManager.authenticate();
+      if (res && res.userId) {
+        document.getElementById('userid').value = res.userId;
+        showToast('Verifikasi Biometrik Sukses 👆', `Fingerprint terverifikasi untuk user ${res.userId}. Masukkan password Anda.`, 'info');
+      }
+    } catch (bioErr) {
+      showToast('Biometrik Gagal', bioErr.message || 'Verifikasi biometrik dibatalkan.', 'warning');
+    }
+  });
+
   safeAddListener('refresh-dashboard-btn', 'click', loadDashboardData);
   safeAddListener('refresh-module-btn', 'click', () => loadModuleData(state.currentModule));
   safeAddListener('refresh-audit-btn', 'click', loadAuditLogs);
@@ -621,6 +634,21 @@ function showAppShell() {
 
   // Initialize 15-minute idle inactivity auto-logout monitor
   initIdleTimer();
+
+  // Prompt supervisor for biometric registration if available
+  if (window.BiometricManager) {
+    BiometricManager.isPlatformBiometricAvailable().then(avail => {
+      if (avail && !BiometricManager.hasCredential(state.user.userid)) {
+        setTimeout(() => {
+          if (confirm('🔒 Aktifkan Fingerprint / FaceID pada HP ini untuk Login Cepat selanjutnya?')) {
+            BiometricManager.registerCredential(state.user.userid)
+              .then(() => showToast('Biometrik Aktif 👆', 'Fingerprint / FaceID berhasil didaftarkan untuk login cepat!', 'success'))
+              .catch(err => console.warn('[Biometric] Registration skipped:', err.message));
+          }
+        }, 1200);
+      }
+    });
+  }
 
   // Health check to get IP & Network type
   apiFetch('/api/health').then(h => {

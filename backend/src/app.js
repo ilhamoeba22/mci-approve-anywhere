@@ -16,6 +16,7 @@ const jaminanRoutes = require('./routes/jaminanRoutes');
 const kondisiKhususRoutes = require('./routes/kondisiKhususRoutes');
 const tutupKantorRoutes = require('./routes/tutupKantorRoutes');
 const auditRoutes = require('./routes/auditRoutes');
+const pushRoutes = require('./routes/pushRoutes');
 
 const cookieParser = require('cookie-parser');
 
@@ -70,6 +71,7 @@ app.use('/api/jaminan', jaminanRoutes);
 app.use('/api/kondisi-khusus', kondisiKhususRoutes);
 app.use('/api/tutup-kantor', tutupKantorRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/push', pushRoutes);
 
 // Fallback to frontend SPA index.html for non-API GET requests
 app.get('*', (req, res, next) => {

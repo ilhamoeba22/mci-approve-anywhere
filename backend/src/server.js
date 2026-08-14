@@ -20,6 +20,10 @@ async function startServer() {
       console.warn('[Server] Initial DB pre-connect warning:', err.message);
     });
 
+    // Start Real-Time DB Polling Push Worker
+    const { startPushWorker } = require('./services/pushWorker');
+    startPushWorker(30000);
+
     // Graceful Shutdown Handlers
     const shutdown = async (signal) => {
       console.log(`\n[Server] Received ${signal}, shutting down gracefully...`);
