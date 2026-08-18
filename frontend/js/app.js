@@ -494,26 +494,13 @@ function showToast(title, message, type = 'success') {
 }
 
 async function loadLoginDatabases() {
-  const select = document.getElementById('target_db');
-  if (!select) return;
-
-  try {
-    const res = await fetch('/api/auth/databases').then(r => r.json());
-    if (res.status === 'success' && res.data && res.data.live) {
-      let html = '';
-      res.data.live.forEach(db => {
-        html += `<option value="${db.key}" selected>${db.name}</option>`;
-      });
-      select.innerHTML = html;
-    }
-  } catch (err) {
-    console.error('Could not load databases list:', err);
-  }
+  const input = document.getElementById('target_db');
+  if (input) input.value = 'BPRS_MCI_LIVE';
 }
 
 async function handleLogin(e) {
   e.preventDefault();
-  const target_db = document.getElementById('target_db').value;
+  const target_db = (document.getElementById('target_db') && document.getElementById('target_db').value) || 'BPRS_MCI_LIVE';
   const userid = document.getElementById('userid').value.trim();
   const password = document.getElementById('password').value;
 
@@ -533,7 +520,7 @@ async function handleLogin(e) {
     localStorage.setItem('user', JSON.stringify(data.user));
 
     showAppShell();
-    showToast('Login Berhasil', `Selamat datang, ${data.user.nmuser || data.user.userid}! Terhubung ke Database Live BPRS_MCI.`, 'success');
+    showToast('Login Berhasil', `Selamat datang, ${data.user.nmuser || data.user.userid}! Terhubung ke Database Live.`, 'success');
   } catch (err) {
     loginError.textContent = `❌ ${err.message || 'User ID atau Password tidak sesuai'}`;
     loginError.classList.remove('hidden');
@@ -674,9 +661,7 @@ function showAppShell() {
   document.getElementById('user-name-display').textContent = state.user.nmuser || state.user.userid;
   document.getElementById('user-level-display').textContent = `LEVEL ${state.user.levelx}`;
 
-  const dbName = state.user.db_name || state.user.target_db || 'BPRS_MCI';
-  const dbServer = state.user.db_server || 'iba-net.02.mglobalperdana.com';
-  document.getElementById('db-name-display').textContent = `${dbName} (${dbServer})`;
+  document.getElementById('db-name-display').textContent = 'Connect Database Live';
 
   // Render division menus based on user database permissions
   renderDynamicNavigation(state.user);

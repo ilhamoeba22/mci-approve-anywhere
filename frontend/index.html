@@ -24,13 +24,12 @@
         <p>Sistem Otorisasi Terpadu Pejabat & Supervisor (CSBO MitraSoft)</p>
       </div>
       <form id="login-form">
-        <!-- Target Database Selector -->
-        <div class="form-group">
-          <label for="target_db">Server & Database Target Otorisasi</label>
-          <select id="target_db" class="search-field" style="width: 100%; padding: 10px 14px;" required>
-            <option value="BPRS_MCI_LIVE" selected>🔴 BPRS_MCI — Database Production Live (iba-net.02.mglobalperdana.com)</option>
-          </select>
+        <!-- Status Database Live Connection -->
+        <div class="db-status-live-badge" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #34d399; padding: 9px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 18px;">
+          <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
+          <span>Connect Database Live</span>
         </div>
+        <input type="hidden" id="target_db" value="BPRS_MCI_LIVE">
 
         <div class="form-group">
           <label for="userid">User ID Supervisor / Checker</label>
@@ -75,7 +74,7 @@
         </button>
         <div class="db-badge" id="db-badge" title="Database Aktif">
           <span class="icon">🗄️</span>
-          <span id="db-name-display">MCI_JULI_31072026</span>
+          <span id="db-name-display">Database Live</span>
         </div>
         <div class="network-badge" id="network-badge">
           <span class="dot"></span>
@@ -425,8 +424,8 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <script src="js/biometric.js?v=25.0.0"></script>
-  <script src="js/pwa-install.js?v=25.0.0"></script>
-  <script src="js/app.js?v=25.0.0"></script>
+  <script src="js/biometric.js?v=26.0.0"></script>
+  <script src="js/pwa-install.js?v=26.0.0"></script>
+  <script src="js/app.js?v=26.0.0"></script>
 </body>
 </html>
