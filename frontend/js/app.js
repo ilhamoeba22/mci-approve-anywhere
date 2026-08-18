@@ -1226,6 +1226,7 @@ function renderDetailDrawer(row, moduleKey, idVal) {
       </div>
     `;
   } else if (moduleKey === 'deposito') {
+    const isAro = (row.aro === 'Y' || row.aro === '1');
     html += `
       <!-- Section 1: Informasi Deposito & Bilyet -->
       <div class="detail-section">
@@ -1260,13 +1261,60 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value">${formatMakerDate(row.tglbuka || '-')}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Bunga / Nisbah (%)</span>
-            <span class="detail-field-value">${row.bunga || row.nisbah || '-'} %</span>
+            <span class="detail-field-label">Tanggal Jatuh Tempo</span>
+            <span class="detail-field-value">${formatMakerDate(row.tgljtempo || '-')}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Bagi Hasil / Nisbah (%)</span>
+            <span class="detail-field-value">${row.nisbah || row.bunga || '-'} %</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Status ARO (Perpanjangan Otomatis)</span>
+            <span class="detail-field-value">${isAro ? '<span class="badge badge-success">Ya (ARO)</span>' : '<span class="badge badge-secondary">Tidak</span>'}</span>
           </div>
         </div>
       </div>
 
-      <!-- Section 2: Kantor & Cabang -->
+      <!-- Section 2: Rekening Debet & Kredit / Pencairan -->
+      <div class="detail-section" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.3);">
+        <div class="detail-section-title" style="color: var(--primary);">💳 Rekening Debet, Kredit & Bagi Hasil</div>
+        <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Debet (Sumber Dana Pokok)</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.noacpok || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rek. Debet</span>
+            <span class="detail-field-value"><strong style="color: #60a5fa;">${row.nama_rek_debet || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Kredit (Deposito)</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.nodep || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rek. Kredit</span>
+            <span class="detail-field-value"><strong>${row.nama || row.fnama || row.nm || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Bagi Hasil / Bunga</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.noacbng || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rek. Bagi Hasil</span>
+            <span class="detail-field-value"><strong style="color: #34d399;">${row.nama_rek_bagi_hasil || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Pencairan Pokok (Jatuh Tempo)</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.noacpokc || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rek. Pencairan</span>
+            <span class="detail-field-value"><strong>${row.nama_rek_pencairan || '-'}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Kantor & Cabang -->
       <div class="detail-section">
         <div class="detail-section-title">🏢 Informasi Nasabah, Kantor & Cabang</div>
         <div class="detail-fields-grid">
