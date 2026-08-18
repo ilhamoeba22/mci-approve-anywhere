@@ -1423,17 +1423,9 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-label">Tanggal Transaksi</span>
             <span class="detail-field-value">${formatMakerDate(row.tgltrn || '-')}</span>
           </div>
-          <div class="detail-field">
+          <div class="detail-field" style="grid-column: 1 / -1;">
             <span class="detail-field-label">Nominal Transaksi Rp</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nominalrp || row.nomrp || 0)}</span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Rekening Debit (DR)</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.dracc || '-'}</span></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Rekening Kredit (CR)</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.cracc || '-'}</span></span>
+            <span class="detail-field-value highlight-money" style="font-size: 1.1rem;">${formatMoney(row.nominalrp || row.nomrp || 0)}</span>
           </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
             <span class="detail-field-label">Keterangan Transaksi</span>
@@ -1442,17 +1434,40 @@ function renderDetailDrawer(row, moduleKey, idVal) {
         </div>
       </div>
 
-      <!-- Section 2: Kantor & Teller -->
+      <!-- Section 2: Informasi Rekening Debet (DR) & Kredit (CR) -->
+      <div class="detail-section" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.3);">
+        <div class="detail-section-title" style="color: var(--primary);">💳 Rincian Rekening Debet (DR) & Kredit (CR)</div>
+        <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Debet (DR)</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.dracc || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rekening Debet (DR)</span>
+            <span class="detail-field-value"><strong style="color: #60a5fa;">${row.nama_rek_debet || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Rekening Kredit (CR)</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.cracc || '-'}</span></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Pemilik Rekening Kredit (CR)</span>
+            <span class="detail-field-value"><strong style="color: #34d399;">${row.nama_rek_kredit || '-'}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Kantor & Teller -->
       <div class="detail-section">
         <div class="detail-section-title">🏢 Otorisasi Teller & Cabang</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
-            <span class="detail-field-label">Nama Nasabah Transaksi</span>
-            <span class="detail-field-value"><strong>${row.nm || row.nama || row.namanasabah || row.fnama || row.nm_nasabah || '-'}</strong></span>
-          </div>
-          <div class="detail-field">
             <span class="detail-field-label">User Teller (Maker)</span>
             <span class="detail-field-value"><strong>${row.inpuser || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Waktu Input Transaksi</span>
+            <span class="detail-field-value">${formatMakerDate(row.inptgl || row.tgltrn || '-')}</span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Kode Cabang</span>

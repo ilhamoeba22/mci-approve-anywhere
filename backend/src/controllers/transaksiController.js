@@ -11,14 +11,24 @@ async function getPendingTransaksi(req, res, next) {
   try {
     const pool = await getPool(req.user ? req.user.target_db : null);
     const result = await pool.request().query(`
-      SELECT t.tgltrn, t.batch, t.notrn, t.dracc, t.cracc, t.nominalrp, t.ket, t.kdloc, t.ststrn, t.inpuser, t.inptgl, t.autuser, t.auttgl,
-             COALESCE(tb1.fnama, tb2.fnama, c1.nm, c2.nm, t.ket) AS nm,
-             COALESCE(tb1.fnama, tb2.fnama, c1.nm, c2.nm, '-') AS namanasabah
+      SELECT 
+        t.tgltrn, t.batch, t.notrn, t.dracc, t.cracc, t.nominalrp, t.ket, t.kdloc, t.ststrn, t.inpuser, t.inptgl, t.autuser, t.auttgl,
+        COALESCE(tb_dr.fnama, dep_dr.nama, lmb_dr.nama, gl_dr.nmsbb, c_dr.nm, '-') AS nama_rek_debet,
+        COALESCE(tb_cr.fnama, dep_cr.nama, lmb_cr.nama, gl_cr.nmsbb, c_cr.nm, '-') AS nama_rek_kredit,
+        COALESCE(tb_dr.fnama, tb_cr.fnama, dep_dr.nama, dep_cr.nama, lmb_dr.nama, lmb_cr.nama, gl_dr.nmsbb, gl_cr.nmsbb, t.ket) AS nm,
+        COALESCE(c_dr.nm, c_cr.nm, tb_dr.fnama, tb_cr.fnama, dep_dr.nama, dep_cr.nama, '-') AS namanasabah
       FROM TOFTRNC t
-      LEFT JOIN TOFTABB tb1 ON t.dracc = tb1.notab
-      LEFT JOIN TOFTABB tb2 ON t.cracc = tb2.notab
-      LEFT JOIN mCIF c1 ON tb1.nocif = c1.nocif
-      LEFT JOIN mCIF c2 ON tb2.nocif = c2.nocif
+      LEFT JOIN TOFTABB tb_dr ON t.dracc = tb_dr.notab
+      LEFT JOIN mCIF c_dr ON tb_dr.nocif = c_dr.nocif
+      LEFT JOIN TOFDEP dep_dr ON t.dracc = dep_dr.nodep
+      LEFT JOIN TOFLMB lmb_dr ON t.dracc = lmb_dr.nokontrak
+      LEFT JOIN MGL gl_dr ON t.dracc = gl_dr.nosbb
+
+      LEFT JOIN TOFTABB tb_cr ON t.cracc = tb_cr.notab
+      LEFT JOIN mCIF c_cr ON tb_cr.nocif = c_cr.nocif
+      LEFT JOIN TOFDEP dep_cr ON t.cracc = dep_cr.nodep
+      LEFT JOIN TOFLMB lmb_cr ON t.cracc = lmb_cr.nokontrak
+      LEFT JOIN MGL gl_cr ON t.cracc = gl_cr.nosbb
       WHERE t.ststrn IN ('2', '6')
       ORDER BY t.tgltrn DESC, t.batch DESC, t.notrn DESC
     `);
@@ -42,7 +52,27 @@ async function getDetailTransaksi(req, res, next) {
       .input('tgltrn', mssql.VarChar(8), tgltrn)
       .input('batch', mssql.Numeric(5, 0), batch)
       .input('notrn', mssql.Numeric(5, 0), notrn)
-      .query(`SELECT * FROM TOFTRNC WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn`);
+      .query(`
+        SELECT 
+          t.*,
+          COALESCE(tb_dr.fnama, dep_dr.nama, lmb_dr.nama, gl_dr.nmsbb, c_dr.nm, '-') AS nama_rek_debet,
+          COALESCE(tb_cr.fnama, dep_cr.nama, lmb_cr.nama, gl_cr.nmsbb, c_cr.nm, '-') AS nama_rek_kredit,
+          COALESCE(tb_dr.fnama, tb_cr.fnama, dep_dr.nama, dep_cr.nama, lmb_dr.nama, lmb_cr.nama, gl_dr.nmsbb, gl_cr.nmsbb, t.ket) AS nm,
+          COALESCE(c_dr.nm, c_cr.nm, tb_dr.fnama, tb_cr.fnama, dep_dr.nama, dep_cr.nama, '-') AS namanasabah
+        FROM TOFTRNC t
+        LEFT JOIN TOFTABB tb_dr ON t.dracc = tb_dr.notab
+        LEFT JOIN mCIF c_dr ON tb_dr.nocif = c_dr.nocif
+        LEFT JOIN TOFDEP dep_dr ON t.dracc = dep_dr.nodep
+        LEFT JOIN TOFLMB lmb_dr ON t.dracc = lmb_dr.nokontrak
+        LEFT JOIN MGL gl_dr ON t.dracc = gl_dr.nosbb
+
+        LEFT JOIN TOFTABB tb_cr ON t.cracc = tb_cr.notab
+        LEFT JOIN mCIF c_cr ON tb_cr.nocif = c_cr.nocif
+        LEFT JOIN TOFDEP dep_cr ON t.cracc = dep_cr.nodep
+        LEFT JOIN TOFLMB lmb_cr ON t.cracc = lmb_cr.nokontrak
+        LEFT JOIN MGL gl_cr ON t.cracc = gl_cr.nosbb
+        WHERE t.tgltrn = @tgltrn AND t.batch = @batch AND t.notrn = @notrn
+      `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Transaksi tidak ditemukan' });
