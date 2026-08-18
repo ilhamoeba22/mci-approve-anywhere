@@ -1,4 +1,4 @@
-﻿const { getPool, mssql } = require('../config/db');
+const { getPool, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
 
 function getFormattedNow() {
@@ -55,7 +55,30 @@ async function approveTabungan(req, res, next) {
       .query(`
         UPDATE TOFTABB 
         SET stsrec = 'A', autuser = @autuser, auttgl = @auttgl, autterm = @autterm 
-        WHERE notab = @notab AND stsrec = 'N'
+        WHERE notab = @notab AND stsrec = 'N';
+
+        IF NOT EXISTS (SELECT 1 FROM TOFTABC WHERE notab = @notab)
+        BEGIN
+          INSERT INTO TOFTABC (
+            notab, nocif, fnama, kodecab, kodeloc, kodekas, kodeprd, cc,
+            tglbuka, tgltutup, tgltrnakh, mutasidr, mutasicr, sahirrp, sahirva,
+            saldobuku, stsrest, kodebuku, stsacc, stsblok, terkait, pccode,
+            noaclama, tglbh, bh, tax, brsbuku, bukuke, hari, trnke, tglexp,
+            masa, sisamasa, hal, saldoblok, tariktunai, stsrec,
+            inpuser, inptgl, inpterm, chguser, chgtgl, chgterm,
+            autuser, auttgl, autterm, grouptab
+          )
+          SELECT 
+            b.notab, b.nocif, b.fnama, b.kodecab, b.kodeloc, ISNULL(b.kodekas, ''), b.kodeprd, ISNULL(b.cc, '00'),
+            b.tglbuka, '', '', 0, 0, b.sahirrp, b.sahirva,
+            b.saldobuku, ISNULL(b.stsrest, ''), '01', '', '', ISNULL(b.terkait, 'N'), ISNULL(b.pccode, 0),
+            ISNULL(b.noaclama, ''), '', 0, 0, 1, 0, 0, 0, ISNULL(b.tglexp, ''),
+            ISNULL(b.masa, 0), ISNULL(b.sisamasa, 0), 0, 0, 0, 'A',
+            @autuser, @auttgl, @autterm, @autuser, @auttgl, @autterm,
+            @autuser, @auttgl, @autterm, ISNULL(b.grouptab, '')
+          FROM TOFTABB b
+          WHERE b.notab = @notab;
+        END
       `);
 
     if (result.rowsAffected[0] === 0) {
