@@ -1,4 +1,4 @@
-﻿const { getPool, mssql } = require('../config/db');
+const { getPool, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
 
 function getFormattedNow() {
@@ -175,7 +175,11 @@ async function approveBadanHukum(req, res, next) {
       .query(`
         UPDATE mCIF 
         SET stsrec = 'A', autuser = @autuser, tglaut = @tglaut, devaut = @devaut 
-        WHERE nocif = @nocif AND stsrec = 'N'
+        WHERE nocif = @nocif AND stsrec = 'N';
+
+        UPDATE mCIFMGM
+        SET stsrec = 'A', autuser = @autuser, auttgl = @tglaut, autterm = @devaut
+        WHERE nocif = @nocif AND stsrec = 'N';
       `);
 
     if (result.rowsAffected[0] === 0) {
