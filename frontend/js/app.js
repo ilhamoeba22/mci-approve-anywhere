@@ -1560,41 +1560,33 @@ function renderDetailDrawer(row, moduleKey, idVal) {
     `;
   } else if (moduleKey === 'jaminan') {
     html += `
-      <!-- Section 1: Detail Agunan & Pengikatan Legal -->
+      <!-- Section 1: Identitas & Legalitas Agunan -->
       <div class="detail-section">
-        <div class="detail-section-title">🛡️ Detail Agunan & Legalitas Pengikatan</div>
+        <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
-            <span class="detail-field-label">No. Registrasi Agunan</span>
+            <span class="detail-field-label">No. Registrasi</span>
             <span class="detail-field-value"><span class="highlight-id">${row.noreg || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Jenis Pengikatan Legal</span>
+            <span class="detail-field-label">Jenis Pengikatan</span>
             <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${formatJenisPengikatan(row.jnsikat)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Dokumen Legalitas Agunan</span>
+            <span class="detail-field-label">Dokumen Jaminan</span>
             <span class="detail-field-value"><strong>${row.dokumen || row.ket || '-'}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Jenis Agunan / Jaminan</span>
+            <span class="detail-field-label">Jenis Jaminan / Agunan</span>
             <span class="detail-field-value">${formatJenisAgunan(row.jnsjamin) || row.jnsagunan || 'Sertifikat SHM / BPKB'}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nilai Pengikatan HT / APHT / BI</span>
-            <span class="detail-field-value highlight-money"><strong style="color: #059669;">${formatMoney(row.nilaiagunbi || 0)}</strong></span>
+            <span class="detail-field-label">No. Kontrak Pembiayaan</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nilai NJOP / Taksasi Bank</span>
-            <span class="detail-field-value highlight-money"><strong>${formatMoney(row.nomtaksasi || 0)}</strong></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Nilai Pasar Wajar (Market Value)</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nompasar || 0)}</span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Nilai Likuidasi Agunan</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nomlikuid || 0)}</span>
+            <span class="detail-field-label">No. CIF / Atas Nama</span>
+            <span class="detail-field-value"><strong>${row.nocif || '-'} / ${row.an || row.nm || row.nama || '-'}</strong></span>
           </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
             <span class="detail-field-label">Lokasi Objek Agunan</span>
@@ -1603,32 +1595,75 @@ function renderDetailDrawer(row, moduleKey, idVal) {
         </div>
       </div>
 
-      <!-- Section 2: Kontrak & Pemilik Agunan -->
+      <!-- Section 2: Nilai-Nilai Agunan (Sesuai Tampilan CBS Desktop) -->
       <div class="detail-section">
-        <div class="detail-section-title">📜 Kontrak, Pemilik & Penilai Agunan</div>
+        <div class="detail-section-title">💰 Nilai-Nilai Agunan (Maintenance Jaminan CBS)</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
-            <span class="detail-field-label">No. Kontrak Pembiayaan</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
+            <span class="detail-field-label">Nilai Taksasi</span>
+            <span class="detail-field-value highlight-money"><strong>${formatMoney(row.nomtaksasi || 0)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">No. CIF Pemilik Agunan</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.nocif || '-'}</span></span>
+            <span class="detail-field-label">Nilai Pasar</span>
+            <span class="detail-field-value highlight-money"><strong>${formatMoney(row.nompasar || 0)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Atas Nama Pemilik Agunan</span>
-            <span class="detail-field-value"><strong>${row.an || row.nm || row.nama || '-'}</strong></span>
+            <span class="detail-field-label">Nilai Likuidasi</span>
+            <span class="detail-field-value highlight-money"><strong>${formatMoney(row.nomlikuid || 0)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Petugas Penilai (Appraiser)</span>
-            <span class="detail-field-value">${row.kdpenilai || row.namaci || '-'}</span>
+            <span class="detail-field-label">Nilai HT/NJOP</span>
+            <span class="detail-field-value highlight-money"><strong style="color: #059669;">${formatMoney(row.nilaiagunbi || row.nomtaksasi || 0)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Kode Cabang / Lokasi</span>
-            <span class="detail-field-value">${row.kdcab || '01'} / ${row.kdloc || '01'}</span>
+            <span class="detail-field-label">Dapat Digunakan (%)</span>
+            <span class="detail-field-value">${row.plafond !== null && row.plafond !== undefined ? Number(row.plafond).toLocaleString('id-ID') : '80'} %</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Bisa digunakan</span>
+            <span class="detail-field-value highlight-money">${formatMoney(row.akandiguna || row.nomlikuid || 0)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Sudah Digunakan</span>
+            <span class="detail-field-value highlight-money">${formatMoney(row.digunakan || 0)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Tgl Masuk Agunan</span>
+            <span class="detail-field-value">${formatMakerDate(row.tglmasuk || row.inptgljam)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Penilai & Tempat Penyimpanan Dokumen -->
+      <div class="detail-section">
+        <div class="detail-section-title">🏢 Penilai & Tempat Penyimpanan Dokumen</div>
+        <div class="detail-fields-grid">
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Penilai Intern</span>
+            <span class="detail-field-value">${row.namaci || '-'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nama Penilai Independen</span>
+            <span class="detail-field-value">${row.kdpenilai || '-'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Tgl Taksasi Awal</span>
+            <span class="detail-field-value">${formatMakerDate(row.tgltaks1)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Tgl Taksasi Terakhir</span>
+            <span class="detail-field-value">${formatMakerDate(row.tgltaks2)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Lokasi Penyimpanan</span>
+            <span class="detail-field-value">${row.loksimpan || 'Lainnya'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Ket Lok. Penyimpanan</span>
+            <span class="detail-field-value">${row.ketsimpan || '-'}</span>
           </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
-            <span class="detail-field-label">Spesifikasi Fisik / Catatan Agunan</span>
+            <span class="detail-field-label">Catatan / Spesifikasi Objek</span>
             <span class="detail-field-value">${row.catatan || '-'}</span>
           </div>
         </div>
