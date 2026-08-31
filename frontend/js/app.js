@@ -132,7 +132,9 @@ const MODULES = {
     columns: [
       { key: 'noreg', label: 'No. Registrasi' },
       { key: 'nocif', label: 'No. CIF' },
+      { key: 'an', label: 'Atas Nama' },
       { key: 'dokumen', label: 'Dokumen Jaminan' },
+      { key: 'jnsikat', label: 'Jenis Pengikatan', format: 'ikat' },
       { key: 'nompasar', label: 'Nilai Pasar Rp', format: 'money' },
       { key: 'inpuser', label: 'Maker' },
       { key: 'inptgljam', label: 'Tgl Input Maker', format: 'date' }
@@ -184,6 +186,46 @@ function formatMakerDate(val) {
   }
 
   return str;
+}
+
+function formatJenisPengikatan(val) {
+  if (!val || String(val).trim() === '') return '-';
+  const code = String(val).trim();
+  const map = {
+    '01': 'Bawah Tangan',
+    '11': 'Bawah Tangan',
+    '02': 'Notariil',
+    '12': 'Notariil',
+    '03': 'SKMHT',
+    '16': 'SKMHT',
+    '04': 'Cessie',
+    '05': 'Gadai / Cash Collateral',
+    '06': 'Hipotik',
+    '13': 'Hak Tanggungan (APHT)',
+    '14': 'Jaminan Fidusia',
+    '99': 'Tanpa Pengikatan'
+  };
+  return map[code] ? `${map[code]} (${code})` : code;
+}
+
+function formatJenisAgunan(val) {
+  if (!val || String(val).trim() === '') return '-';
+  const code = String(val).trim();
+  const map = {
+    '01': 'Giro Bank Lain',
+    '02': 'Tabungan',
+    '03': 'Deposito',
+    '04': 'Kendaraan Roda 4 (Mobil)',
+    '05': 'Kendaraan Roda 2 (Motor)',
+    '06': 'Mesin / Peralatan',
+    '08': 'Tanah Kosong',
+    '21': 'Cash Collateral (Deposito)',
+    '41': 'Tanah & Bangunan (SHM/SHGB)',
+    '42': 'Kios / Los Pasar',
+    '51': 'Surat Berharga / Saham',
+    '99': 'Lain-lain / SK'
+  };
+  return map[code] ? `${map[code]} (${code})` : code;
 }
 
 // Idle Inactivity Auto-Logout & Live Countdown Manager (15 Minutes = 900 Seconds)
@@ -914,6 +956,7 @@ function renderTable(data, moduleKey) {
       let val = row[c.key];
       if (c.format === 'money') val = formatMoney(val);
       if (c.format === 'date') val = formatMakerDate(val);
+      if (c.format === 'ikat') val = formatJenisPengikatan(val);
       html += `<td>${val || '-'}</td>`;
     });
 
@@ -1515,17 +1558,25 @@ function renderDetailDrawer(row, moduleKey, idVal) {
     `;
   } else if (moduleKey === 'jaminan') {
     html += `
-      <!-- Section 1: Detail Agunan & Jaminan -->
+      <!-- Section 1: Detail Agunan & Pengikatan Legal -->
       <div class="detail-section">
-        <div class="detail-section-title">🛡️ Detail Agunan & Jaminan Legal</div>
+        <div class="detail-section-title">🛡️ Detail Agunan & Legalitas Pengikatan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
             <span class="detail-field-label">No. Registrasi Agunan</span>
             <span class="detail-field-value"><span class="highlight-id">${row.noreg || '-'}</span></span>
           </div>
           <div class="detail-field">
+            <span class="detail-field-label">Jenis Pengikatan Legal</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${formatJenisPengikatan(row.jnsikat)}</strong></span>
+          </div>
+          <div class="detail-field">
             <span class="detail-field-label">Dokumen Legalitas Agunan</span>
             <span class="detail-field-value"><strong>${row.dokumen || row.ket || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Jenis Agunan / Jaminan</span>
+            <span class="detail-field-value">${formatJenisAgunan(row.jnsjamin) || row.jnsagunan || 'Sertifikat SHM / BPKB'}</span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Nilai Pasar Agunan (Market Value)</span>
@@ -1536,15 +1587,23 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value highlight-money">${formatMoney(row.nomtaksasi || 0)}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Jenis Agunan</span>
-            <span class="detail-field-value">${row.jnsagunan || row.jnsid || 'Sertifikat SHM / BPKB'}</span>
+            <span class="detail-field-label">Nilai Likuidasi Agunan</span>
+            <span class="detail-field-value highlight-money">${formatMoney(row.nomlikuid || 0)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nilai Agunan Menurut BI</span>
+            <span class="detail-field-value highlight-money">${formatMoney(row.nilaiagunbi || 0)}</span>
+          </div>
+          <div class="detail-field" style="grid-column: 1 / -1;">
+            <span class="detail-field-label">Lokasi Objek Agunan</span>
+            <span class="detail-field-value">${row.lokasi || '-'}</span>
           </div>
         </div>
       </div>
 
       <!-- Section 2: Kontrak & Pemilik Agunan -->
       <div class="detail-section">
-        <div class="detail-section-title">📜 Kontrak & CIF Pemilik Agunan</div>
+        <div class="detail-section-title">📜 Kontrak, Pemilik & Penilai Agunan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
             <span class="detail-field-label">No. Kontrak Pembiayaan</span>
@@ -1555,12 +1614,20 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><span class="highlight-id">${row.nocif || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nama Pemilik Agunan</span>
-            <span class="detail-field-value"><strong>${row.nm || row.nama || '-'}</strong></span>
+            <span class="detail-field-label">Atas Nama Pemilik Agunan</span>
+            <span class="detail-field-value"><strong>${row.an || row.nm || row.nama || '-'}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Kode Cabang</span>
-            <span class="detail-field-value">${row.kdcab || '-'}</span>
+            <span class="detail-field-label">Petugas Penilai (Appraiser)</span>
+            <span class="detail-field-value">${row.kdpenilai || row.namaci || '-'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Kode Cabang / Lokasi</span>
+            <span class="detail-field-value">${row.kdcab || '01'} / ${row.kdloc || '01'}</span>
+          </div>
+          <div class="detail-field" style="grid-column: 1 / -1;">
+            <span class="detail-field-label">Spesifikasi Fisik / Catatan Agunan</span>
+            <span class="detail-field-value">${row.catatan || '-'}</span>
           </div>
         </div>
       </div>
