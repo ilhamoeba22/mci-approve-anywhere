@@ -262,6 +262,7 @@ function auditLoggerMiddleware(req, res, next) {
   req.auditInfo = {
     ip: clientIp,
     networkType: networkType,
+    devterm: networkType,
     userAgent: (req.headers ? req.headers['user-agent'] : '') || 'Unknown'
   };
   next();
