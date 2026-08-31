@@ -131,13 +131,11 @@ const MODULES = {
     icon: '🏠',
     columns: [
       { key: 'noreg', label: 'No. Registrasi' },
-      { key: 'nocif', label: 'No. CIF' },
-      { key: 'an', label: 'Atas Nama' },
+      { key: 'nocif', label: 'Nama Nasabah' },
+      { key: 'an', label: 'Atas Nama Agunan' },
       { key: 'dokumen', label: 'Dokumen Jaminan' },
       { key: 'jnsikat', label: 'Jenis Pengikatan', format: 'ikat' },
-      { key: 'nilaiagunbi', label: 'Nilai HT / Pengikatan Rp', format: 'money' },
-      { key: 'nomtaksasi', label: 'Nilai NJOP / Taksasi Rp', format: 'money' },
-      { key: 'nompasar', label: 'Nilai Pasar Rp', format: 'money' },
+      { key: 'nilaiagunbi', label: 'Nilai HT Rp', format: 'money' },
       { key: 'inpuser', label: 'Maker' },
       { key: 'inptgljam', label: 'Tgl Input Maker', format: 'date' }
     ]
@@ -1585,8 +1583,12 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">No. CIF / Atas Nama</span>
-            <span class="detail-field-value"><strong>${row.nocif || '-'} / ${row.an || row.nm || row.nama || '-'}</strong></span>
+            <span class="detail-field-label">Nama Nasabah / Debitur</span>
+            <span class="detail-field-value"><strong>${row.nocif || '-'}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Atas Nama Pemilik Agunan</span>
+            <span class="detail-field-value"><strong>${row.an || row.nm || row.nama || '-'}</strong></span>
           </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
             <span class="detail-field-label">Lokasi Objek Agunan</span>
