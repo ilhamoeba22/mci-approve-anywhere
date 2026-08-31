@@ -135,6 +135,8 @@ const MODULES = {
       { key: 'an', label: 'Atas Nama' },
       { key: 'dokumen', label: 'Dokumen Jaminan' },
       { key: 'jnsikat', label: 'Jenis Pengikatan', format: 'ikat' },
+      { key: 'nilaiagunbi', label: 'Nilai HT / Pengikatan Rp', format: 'money' },
+      { key: 'nomtaksasi', label: 'Nilai NJOP / Taksasi Rp', format: 'money' },
       { key: 'nompasar', label: 'Nilai Pasar Rp', format: 'money' },
       { key: 'inpuser', label: 'Maker' },
       { key: 'inptgljam', label: 'Tgl Input Maker', format: 'date' }
@@ -1579,20 +1581,20 @@ function renderDetailDrawer(row, moduleKey, idVal) {
             <span class="detail-field-value">${formatJenisAgunan(row.jnsjamin) || row.jnsagunan || 'Sertifikat SHM / BPKB'}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nilai Pasar Agunan (Market Value)</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nompasar || 0)}</span>
+            <span class="detail-field-label">Nilai Pengikatan HT / APHT / BI</span>
+            <span class="detail-field-value highlight-money"><strong style="color: #059669;">${formatMoney(row.nilaiagunbi || 0)}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Nilai Taksasi Bank (Appraisal Value)</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nomtaksasi || 0)}</span>
+            <span class="detail-field-label">Nilai NJOP / Taksasi Bank</span>
+            <span class="detail-field-value highlight-money"><strong>${formatMoney(row.nomtaksasi || 0)}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Nilai Pasar Wajar (Market Value)</span>
+            <span class="detail-field-value highlight-money">${formatMoney(row.nompasar || 0)}</span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Nilai Likuidasi Agunan</span>
             <span class="detail-field-value highlight-money">${formatMoney(row.nomlikuid || 0)}</span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Nilai Agunan Menurut BI</span>
-            <span class="detail-field-value highlight-money">${formatMoney(row.nilaiagunbi || 0)}</span>
           </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
             <span class="detail-field-label">Lokasi Objek Agunan</span>
