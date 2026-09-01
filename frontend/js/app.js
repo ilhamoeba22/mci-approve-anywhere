@@ -131,9 +131,11 @@ const MODULES = {
     icon: '🏠',
     columns: [
       { key: 'noreg', label: 'No. Registrasi' },
+      { key: 'urut', label: 'Urut' },
       { key: 'nocif', label: 'Nama Nasabah' },
       { key: 'an', label: 'Atas Nama Agunan' },
       { key: 'dokumen', label: 'Dokumen Jaminan' },
+      { key: 'jnsjamin', label: 'Jenis Agunan', format: 'agunan' },
       { key: 'jnsikat', label: 'Jenis Pengikatan', format: 'ikat' },
       { key: 'nilaiagunbi', label: 'Nilai HT Rp', format: 'money' },
       { key: 'inpuser', label: 'Maker' },
@@ -964,6 +966,8 @@ function renderTable(data, moduleKey) {
       idVal = `${row.tgltrn}_${row.batch}_${row.notrn}`;
     } else if (moduleKey === 'kondisi_khusus') {
       idVal = `${row.urutspc}_${row.noacc}`;
+    } else if (moduleKey === 'jaminan') {
+      idVal = `${row.noreg}_${row.urut || 1}`;
     } else {
       idVal = row[mod.idKey];
     }
@@ -974,6 +978,7 @@ function renderTable(data, moduleKey) {
       if (c.format === 'money') val = formatMoney(val);
       if (c.format === 'date') val = formatMakerDate(val);
       if (c.format === 'ikat') val = formatJenisPengikatan(val);
+      if (c.format === 'agunan') val = formatJenisAgunan(val);
       html += `<td>${val || '-'}</td>`;
     });
 
@@ -1029,6 +1034,8 @@ async function viewDetail(moduleKey, index) {
     idVal = `${row.tgltrn}_${row.batch}_${row.notrn}`;
   } else if (moduleKey === 'kondisi_khusus') {
     idVal = `${row.urutspc}_${row.noacc}`;
+  } else if (moduleKey === 'jaminan') {
+    idVal = `${row.noreg}_${row.urut || 1}`;
   } else {
     idVal = row[mod.idKey];
   }
@@ -1580,8 +1587,8 @@ function renderDetailDrawer(row, moduleKey, idVal) {
         <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
-            <span class="detail-field-label">No. Registrasi</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.noreg || '-'}</span></span>
+            <span class="detail-field-label">No. Registrasi & Urut</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.noreg || '-'} (Urut: ${row.urut || 1})</span></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Jenis Pengikatan</span>
