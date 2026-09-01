@@ -11,7 +11,7 @@ async function getPendingJaminan(req, res, next) {
   try {
     const pool = await getPool(req.user ? req.user.target_db : null);
     const result = await pool.request().query(`
-      SELECT noreg, urut, nocif, an, dokumen, jnsikat, jnsjamin, nomtaksasi, nompasar, nomlikuid, nilaiagunbi, plafond, akandiguna, digunakan, tglmasuk, namaci, kdpenilai, tgltaks1, tgltaks2, loksimpan, ketsimpan, lokasi, catatan, nokontrak, kdloc, kdcab, inpuser, inptgljam, autuser, auttgljam, stsrec
+      SELECT noreg, urut, nocif, an, dokumen, jnsdokumen, jnsikat, jnsjamin, status, stsasr, sandidati2, dd_latitude, dd_longitude, nomtaksasi, nompasar, nomlikuid, nilaiagunbi, plafond, akandiguna, digunakan, tglmasuk, namaci, kdpenilai, tgltaks1, tgltaks2, loksimpan, ketsimpan, lokasi, catatan, nokontrak, kdloc, kdcab, inpuser, inptgljam, autuser, auttgljam, stsrec
       FROM TOFJAMIN 
       WHERE stsrec = 'N'
       ORDER BY inptgljam DESC, noreg DESC, urut ASC

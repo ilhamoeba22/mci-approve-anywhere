@@ -198,14 +198,14 @@ function formatJenisPengikatan(val) {
     '11': 'Bawah Tangan',
     '02': 'Notariil',
     '12': 'Notariil',
-    '03': 'SKMHT (Surat Kuasa Membebankan Hak Tanggungan)',
-    '16': 'SKMHT (Surat Kuasa Membebankan Hak Tanggungan)',
-    '04': 'Cessie / Klaim Asuransi',
-    '05': 'Gadai / Blokir Saldo Kas',
-    '06': 'Hipotik / Kuasa Jual',
+    '03': 'SKMHT',
+    '16': 'SKMHT',
+    '04': 'Fiducia dan Hipotik',
+    '05': 'Gadai / Blokir Saldo',
+    '06': 'Hipotik',
     '13': 'Hak Tanggungan (APHT)',
     '14': 'Jaminan Fidusia',
-    '99': 'Tanpa Pengikatan'
+    '99': 'Lain-lain'
   };
   return map[code] ? `${map[code]} (${code})` : code;
 }
@@ -214,37 +214,68 @@ function formatJenisAgunan(val) {
   if (!val || String(val).trim() === '') return '-';
   const code = String(val).trim();
   const map = {
-    '01': 'Giro Bank Lain',
-    '02': 'Tabungan',
-    '03': 'Deposito',
-    '04': 'Kendaraan Roda 4 (Mobil)',
-    '05': 'Kendaraan Roda 2 (Motor)',
-    '06': 'Mesin / Peralatan Usaha',
-    '07': 'Kendaraan Roda 2 (Motor)',
-    '08': 'Tanah Kosong',
-    '12': 'Cash Collateral (Deposito)',
-    '21': 'Cash Collateral (Deposito)',
-    '22': 'Logam Mulia / Emas',
-    '31': 'Tanah / Bangunan Proses Notaris',
-    '41': 'Tanah & Bangunan (SHM/SHGB)',
-    '42': 'Tanah Kosong / Pekarangan',
-    '43': 'Tanah & Bangunan (Properti / Perumahan)',
-    '47': 'Kendaraan Roda 4 (Mobil)',
-    '48': 'Mesin & Peralatan Usaha',
-    '51': 'Surat Berharga / Saham',
-    '52': 'Deposito Berjangka',
-    '58': 'Asuransi Penjaminan',
-    '60': 'Giro Antar Bank',
-    '63': 'Asuransi Kredit (Swasta)',
-    '65': 'Saham BPRS / Surat Berharga',
-    '71': 'Jaminan Pemerintah Pusat / Daerah',
-    '72': 'Lembaga Penjamin Kredit BUMN / BUMD (Jamkrida / Jamkrindo / Askrindo)',
-    '74': 'SK Pegawai / Pengangkatan BUMN / BUMD / PNS',
-    '75': 'Ijazah / Dokumen Personal',
-    '76': 'Ijazah & Sertifikat Keahlian',
-    '99': 'Lain-lain / SK'
+    '01': '01 - Giro Bank Lain',
+    '02': '02 - Tabungan',
+    '03': '03 - Deposito',
+    '04': '04 - Kendaraan Roda 4 (Mobil)',
+    '05': '05 - Kendaraan Roda 2 (Motor)',
+    '06': '06 - Mesin / Peralatan Usaha',
+    '07': '07 - Kendaraan Roda 2 (Motor)',
+    '08': '08 - Tanah Kosong',
+    '12': '12 - Cash Collateral (Deposito/Tabungan)',
+    '21': '21 - Cash Collateral (Deposito)',
+    '22': '22 - Logam Mulia / Emas',
+    '31': '31 - Tanah / Bangunan Proses Notaris',
+    '41': '41 - Tanah & Bangunan (SHM/SHGB)',
+    '42': '42 - Tanah Kosong',
+    '43': '43 - Properti / Perumahan Developer',
+    '47': '47 - Kendaraan Roda 4 (Mobil)',
+    '48': '48 - Mesin & Peralatan Usaha',
+    '51': '51 - Surat Berharga / Saham',
+    '52': '52 - Deposito Berjangka',
+    '58': '58 - Asuransi Penjaminan',
+    '60': '60 - Giro Antar Bank',
+    '63': '63 - Asuransi Jiwa-Lainnya',
+    '65': '65 - Saham BPRS / Surat Berharga',
+    '71': '71 - Jaminan Pemerintah Pusat / Daerah',
+    '72': '72 - Asuransi Pemb-Asur BUMN/BUMD',
+    '74': '74 - SK Pegawai BUMN / BUMD / PNS',
+    '75': '75 - Ijazah / Dokumen Personal',
+    '76': '76 - Ijazah & Sertifikat Keahlian',
+    '99': '99 - Lain-lain / SK'
   };
-  return map[code] ? `${map[code]} (${code})` : code;
+  return map[code] ? `${map[code]}` : code;
+}
+
+function formatBuktiKepemilikan(val) {
+  if (!val || String(val).trim() === '') return '-';
+  const code = String(val).trim();
+  const map = {
+    '26': 'Polis / Sertifikat Kafalah (26)',
+    '01': 'SHM (Sertifikat Hak Milik) (01)',
+    '02': 'SHGB (Sertifikat Hak Guna Bangunan) (02)',
+    '03': 'SHGB (Sertifikat Hak Guna Bangunan) (03)',
+    '04': 'BPKB Kendaraan Roda 4 (04)',
+    '06': 'BPKB Kendaraan Bermotor (06)',
+    '15': 'Sertifikat Penjaminan Kredit (15)',
+    '18': 'Surat Keputusan (SK) (18)',
+    '08': 'Bilyet Deposito / Buku Tabungan (08)',
+    '16': 'Saham / Surat Berharga (16)',
+    '41': 'Sertifikat Tanah Properti (41)'
+  };
+  return map[code] ? `${map[code]}` : `Kode Dokumen ${code}`;
+}
+
+function formatStatusKepemilikan(val) {
+  if (!val || String(val).trim() === '') return '1 - Milik Sendiri';
+  const code = String(val).trim();
+  const map = {
+    '1': '1 - Milik Sendiri',
+    '01': '1 - Milik Sendiri',
+    '2': '2 - Milik Pihak Ketiga / Keluarga',
+    '3': '3 - Milik Perusahaan / Badan Hukum'
+  };
+  return map[code] ? map[code] : `${code} - Milik Sendiri`;
 }
 
 // Idle Inactivity Auto-Logout & Live Countdown Manager (15 Minutes = 900 Seconds)
@@ -1582,41 +1613,65 @@ function renderDetailDrawer(row, moduleKey, idVal) {
     `;
   } else if (moduleKey === 'jaminan') {
     html += `
-      <!-- Section 1: Identitas & Legalitas Agunan -->
+      <!-- Section 1: Identitas & Legalitas Agunan (CBS Screen 1 of 2) -->
       <div class="detail-section">
-        <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan</div>
+        <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan (CBS Screen 1)</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
-            <span class="detail-field-label">No. Registrasi & Urut</span>
+            <span class="detail-field-label">No. Registrasi & No. Urut</span>
             <span class="detail-field-value"><span class="highlight-id">${row.noreg || '-'} (Urut: ${row.urut || 1})</span></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Jenis Pengikatan</span>
-            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${formatJenisPengikatan(row.jnsikat)}</strong></span>
+            <span class="detail-field-label">Nama Debitur</span>
+            <span class="detail-field-value"><strong style="color: var(--primary); font-size: 1.05rem;">${row.nocif || '-'}</strong></span>
           </div>
           <div class="detail-field">
-            <span class="detail-field-label">Dokumen Jaminan</span>
+            <span class="detail-field-label">Jenis Agunan</span>
+            <span class="detail-field-value"><strong style="color: #0284c7;">${formatJenisAgunan(row.jnsjamin)}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Bukti Kepemilikan</span>
+            <span class="detail-field-value">${formatBuktiKepemilikan(row.jnsdokumen)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Dokumen No.</span>
             <span class="detail-field-value"><strong>${row.dokumen || row.ket || '-'}</strong></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Jenis Jaminan / Agunan</span>
-            <span class="detail-field-value">${formatJenisAgunan(row.jnsjamin) || row.jnsagunan || 'Sertifikat SHM / BPKB'}</span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">No. Kontrak Pembiayaan</span>
-            <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-field-label">Nama Nasabah / Debitur</span>
-            <span class="detail-field-value"><strong>${row.nocif || '-'}</strong></span>
           </div>
           <div class="detail-field">
             <span class="detail-field-label">Atas Nama Pemilik Agunan</span>
             <span class="detail-field-value"><strong>${row.an || row.nm || row.nama || '-'}</strong></span>
           </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Status Kepemilikan</span>
+            <span class="detail-field-value">${formatStatusKepemilikan(row.status)}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Jenis Pengikatan</span>
+            <span class="detail-field-value"><strong style="color: #059669; font-size: 1.05rem;">${formatJenisPengikatan(row.jnsikat)}</strong></span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Jaminan Diasuransikan</span>
+            <span class="detail-field-value">${(row.stsasr === 'Y' || row.stsasr === '1') ? '☑️ Ya (Diasuransikan)' : '☐ Tidak'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Sandi Dati II</span>
+            <span class="detail-field-value">${row.sandidati2 || '-'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">Titik Koordinat DD (Lat / Long)</span>
+            <span class="detail-field-value">${row.dd_latitude || '0,0000000'}, ${row.dd_longitude || '0,0000000'}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field-label">No. Kontrak Pembiayaan</span>
+            <span class="detail-field-value"><span class="highlight-id">${row.nokontrak || '-'}</span></span>
+          </div>
           <div class="detail-field" style="grid-column: 1 / -1;">
-            <span class="detail-field-label">Lokasi Objek Agunan</span>
+            <span class="detail-field-label">Lokasi Agunan</span>
             <span class="detail-field-value">${row.lokasi || '-'}</span>
+          </div>
+          <div class="detail-field" style="grid-column: 1 / -1;">
+            <span class="detail-field-label">Catatan Pelengkap Jaminan</span>
+            <span class="detail-field-value">${row.catatan && row.catatan.trim() ? row.catatan : '-'}</span>
           </div>
         </div>
       </div>
