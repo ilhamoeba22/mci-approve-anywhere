@@ -1613,9 +1613,9 @@ function renderDetailDrawer(row, moduleKey, idVal) {
     `;
   } else if (moduleKey === 'jaminan') {
     html += `
-      <!-- Section 1: Identitas & Legalitas Agunan (CBS Screen 1 of 2) -->
+      <!-- Section 1: Identitas & Legalitas Agunan -->
       <div class="detail-section">
-        <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan (CBS Screen 1)</div>
+        <div class="detail-section-title">🛡️ Identitas & Legalitas Agunan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
             <span class="detail-field-label">No. Registrasi & No. Urut</span>
@@ -1676,9 +1676,9 @@ function renderDetailDrawer(row, moduleKey, idVal) {
         </div>
       </div>
 
-      <!-- Section 2: Nilai-Nilai Agunan (Sesuai Tampilan CBS Desktop) -->
+      <!-- Section 2: Nilai-Nilai Agunan -->
       <div class="detail-section">
-        <div class="detail-section-title">💰 Nilai-Nilai Agunan (Maintenance Jaminan CBS)</div>
+        <div class="detail-section-title">💰 Nilai-Nilai Agunan</div>
         <div class="detail-fields-grid">
           <div class="detail-field">
             <span class="detail-field-label">Nilai Taksasi</span>
