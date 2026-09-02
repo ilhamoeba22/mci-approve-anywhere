@@ -122,7 +122,7 @@ async function approveTransaksi(req, res, next) {
       .input('autterm', mssql.VarChar(10), autterm)
       .query(`
         UPDATE TOFTRNC 
-        SET ststrn = '1', autuser = @autuser, auttgl = @auttgl, autterm = @autterm 
+        SET ststrn = '5', autuser = @autuser, auttgl = @auttgl, autterm = @autterm 
         WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND ststrn IN ('2', '6')
       `);
 
