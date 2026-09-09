@@ -102,7 +102,7 @@ async function approveTransaksi(req, res, next) {
       .input('tgltrn', mssql.VarChar(8), tgltrn)
       .input('batch', mssql.Numeric(5, 0), batch)
       .input('notrn', mssql.Numeric(5, 0), notrn)
-      .query(`SELECT nominalrp FROM TOFTRNC WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND ststrn IN ('2', '6')`);
+      .query(`SELECT tgltrn, batch, notrn, kodetrn, dracc, drmodul, cracc, crmodul, nominalrp, nominalva, stscetak, kdtrnbuku, trnkedr, trnkecr, ket FROM TOFTRNC WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND ststrn IN ('2', '6')`);
 
     if (trnQuery.recordset.length > 0) {
       const nominalrp = trnQuery.recordset[0].nominalrp;
@@ -122,12 +122,70 @@ async function approveTransaksi(req, res, next) {
       .input('autterm', mssql.VarChar(10), autterm)
       .query(`
         UPDATE TOFTRNC 
-        SET ststrn = '5', autuser = @autuser, auttgl = @auttgl, autterm = @autterm 
+        SET ststrn = CASE WHEN ststrn = '6' THEN '9' ELSE '5' END,
+            autuser = @autuser, 
+            auttgl = @auttgl, 
+            autterm = @autterm 
         WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND ststrn IN ('2', '6')
       `);
 
     if (result.rowsAffected[0] === 0) {
       return res.status(400).json({ status: 'error', message: 'Gagal disetujui: Record tidak ditemukan atau sudah diotorisasi' });
+    }
+
+    // Insert into TRANSPC for Tabungan accounts so passbook printing (Cetak Buku / Cetak Ulang) is available in CBS
+    if (trnQuery.recordset.length > 0) {
+      const trnData = trnQuery.recordset[0];
+      const stscetakVal = (trnData.stscetak && trnData.stscetak.trim() === 'Y') ? 'Y' : 'N';
+      const ketVal = (trnData.ket || '').substring(0, 40);
+
+      try {
+        if (String(trnData.drmodul).trim() === '1' && trnData.dracc) {
+          await pool.request()
+            .input('tgltrn', mssql.VarChar(8), tgltrn)
+            .input('batch', mssql.Numeric(5, 0), batch)
+            .input('notrn', mssql.Numeric(5, 0), notrn)
+            .input('noacc', mssql.VarChar(11), trnData.dracc.trim())
+            .input('dc', mssql.VarChar(1), 'D')
+            .input('nominal', mssql.Numeric(16, 2), trnData.nominalrp || 0)
+            .input('nominalva', mssql.Numeric(16, 2), trnData.nominalva || 0)
+            .input('stscetak', mssql.VarChar(1), stscetakVal)
+            .input('kdtrnbuku', mssql.VarChar(2), (trnData.kdtrnbuku || '').trim())
+            .input('trnke', mssql.Numeric(5, 0), trnData.trnkedr || 1)
+            .input('ket', mssql.VarChar(40), ketVal)
+            .query(`
+              IF NOT EXISTS (SELECT 1 FROM TRANSPC WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND noacc = @noacc)
+              BEGIN
+                INSERT INTO TRANSPC (tgltrn, batch, notrn, noacc, dc, nominal, nominalva, stscetak, kdtrnbuku, trnke, ket)
+                VALUES (@tgltrn, @batch, @notrn, @noacc, @dc, @nominal, @nominalva, @stscetak, @kdtrnbuku, @trnke, @ket)
+              END
+            `);
+        }
+
+        if (String(trnData.crmodul).trim() === '1' && trnData.cracc) {
+          await pool.request()
+            .input('tgltrn', mssql.VarChar(8), tgltrn)
+            .input('batch', mssql.Numeric(5, 0), batch)
+            .input('notrn', mssql.Numeric(5, 0), notrn)
+            .input('noacc', mssql.VarChar(11), trnData.cracc.trim())
+            .input('dc', mssql.VarChar(1), 'C')
+            .input('nominal', mssql.Numeric(16, 2), trnData.nominalrp || 0)
+            .input('nominalva', mssql.Numeric(16, 2), trnData.nominalva || 0)
+            .input('stscetak', mssql.VarChar(1), stscetakVal)
+            .input('kdtrnbuku', mssql.VarChar(2), (trnData.kdtrnbuku || '').trim())
+            .input('trnke', mssql.Numeric(5, 0), trnData.trnkecr || 1)
+            .input('ket', mssql.VarChar(40), ketVal)
+            .query(`
+              IF NOT EXISTS (SELECT 1 FROM TRANSPC WHERE tgltrn = @tgltrn AND batch = @batch AND notrn = @notrn AND noacc = @noacc)
+              BEGIN
+                INSERT INTO TRANSPC (tgltrn, batch, notrn, noacc, dc, nominal, nominalva, stscetak, kdtrnbuku, trnke, ket)
+                VALUES (@tgltrn, @batch, @notrn, @noacc, @dc, @nominal, @nominalva, @stscetak, @kdtrnbuku, @trnke, @ket)
+              END
+            `);
+        }
+      } catch (transpcErr) {
+        console.error('[approveTransaksi] Error inserting TRANSPC record:', transpcErr.message);
+      }
     }
 
     await writeAuditLog({
