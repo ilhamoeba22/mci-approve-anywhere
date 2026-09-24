@@ -859,22 +859,21 @@ async function loadDashboardData() {
     dashWelcomeName.textContent = user.nmuser || user.userid;
   }
 
-  let grandTotalPending = 0;
-
-  // Fetch pending counts for all modules
-  for (const [key, mod] of Object.entries(MODULES)) {
+  // Fetch pending counts for all modules in parallel (non-blocking)
+  await Promise.all(Object.entries(MODULES).map(async ([key, mod]) => {
     try {
       const res = await apiFetch(`${mod.endpoint}/pending`);
       const total = res.total || 0;
       state.pendingCounts[key] = total;
-      grandTotalPending += total;
 
       const badge = document.getElementById(`count-${key}`);
       if (badge) badge.textContent = total;
     } catch (err) {
       state.pendingCounts[key] = 0;
     }
-  }
+  }));
+
+  const grandTotalPending = Object.values(state.pendingCounts).reduce((sum, val) => sum + (val || 0), 0);
 
   // Update Total Pending KPI in Hero Banner
   const dashTotalPending = document.getElementById('dash-total-pending');

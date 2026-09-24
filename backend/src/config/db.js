@@ -136,16 +136,17 @@ async function getPool(targetDb) {
       port: dbInfo.port,
       database: dbInfo.database,
       pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
+        max: 15,
+        min: 2,
+        idleTimeoutMillis: 120000
       },
       options: {
         encrypt: false,
         trustServerCertificate: true,
         enableArithAbort: true
       },
-      connectionTimeout: 10000
+      connectionTimeout: 10000,
+      requestTimeout: 30000
     };
 
     const poolPromise = new mssql.ConnectionPool(config)
@@ -154,8 +155,10 @@ async function getPool(targetDb) {
         console.log(`[DBPool] Connected to ${dbInfo.displayName} at ${dbInfo.server}:${dbInfo.port}`);
         await ensureAuditLogTable(pool);
         pool.on('error', (err) => {
-          console.error(`[DBPool] Pool error on ${cacheKey}:`, err);
-          pools.delete(cacheKey);
+          console.error(`[DBPool] Pool error on ${cacheKey}:`, err.message || err);
+          if (!pool.connected) {
+            pools.delete(cacheKey);
+          }
         });
         return pool;
       })
@@ -202,6 +205,7 @@ module.exports = {
   getPool,
   resolveDbConfig,
   closeAllPools,
+  closePool: closeAllPools,
   listAvailableDatabases,
   parseDbHumanLabel,
   mssql
