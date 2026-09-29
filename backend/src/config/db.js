@@ -124,6 +124,62 @@ async function ensureAuditLogTable(pool) {
   }
 }
 
+async function ensureCmsMatchTables(pool) {
+  const query = `
+    IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WA_CMS_BATCH]') AND type in (N'U'))
+    BEGIN
+      CREATE TABLE [dbo].[WA_CMS_BATCH] (
+        [id]                BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        [batch_no]          VARCHAR(40) NOT NULL UNIQUE,
+        [tgl_cek]           VARCHAR(14) NOT NULL,
+        [userid]            VARCHAR(10) NOT NULL,
+        [nama_file_param]   NVARCHAR(255) NULL,
+        [nama_file_hasil]   NVARCHAR(255) NULL,
+        [total_parameter]   INT NOT NULL DEFAULT 0,
+        [total_cocok]       INT NOT NULL DEFAULT 0,
+        [total_tidak_cocok] INT NOT NULL DEFAULT 0,
+        [persentase_cocok]  DECIMAL(5,2) NOT NULL DEFAULT 0,
+        [catatan]           NVARCHAR(500) NULL,
+        [ip_client]         VARCHAR(50) NULL,
+        [created_at]        DATETIME NOT NULL DEFAULT GETDATE()
+      );
+
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_WA_CMS_BATCH_tgl_cek')
+        CREATE INDEX [IX_WA_CMS_BATCH_tgl_cek] ON [dbo].[WA_CMS_BATCH] ([tgl_cek]);
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_WA_CMS_BATCH_userid')
+        CREATE INDEX [IX_WA_CMS_BATCH_userid] ON [dbo].[WA_CMS_BATCH] ([userid]);
+    END
+
+    IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WA_CMS_DETAIL]') AND type in (N'U'))
+    BEGIN
+      CREATE TABLE [dbo].[WA_CMS_DETAIL] (
+        [id]            BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        [batch_id]      BIGINT NOT NULL FOREIGN KEY REFERENCES [dbo].[WA_CMS_BATCH]([id]) ON DELETE CASCADE,
+        [no_urut]       INT NOT NULL,
+        [nasabah]       NVARCHAR(150) NOT NULL,
+        [rek_iba]       VARCHAR(30) NULL,
+        [bank_tujuan]   VARCHAR(50) NULL,
+        [nama_tujuan]   NVARCHAR(150) NULL,
+        [rek_tujuan]    VARCHAR(50) NOT NULL,
+        [nominal]       DECIMAL(18,2) NOT NULL DEFAULT 0,
+        [status_match]  VARCHAR(10) NOT NULL DEFAULT 'OK',
+        [keterangan]    VARCHAR(100) NOT NULL DEFAULT 'Cocok Persis',
+        [created_at]    DATETIME NOT NULL DEFAULT GETDATE()
+      );
+
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_WA_CMS_DETAIL_batch_id')
+        CREATE INDEX [IX_WA_CMS_DETAIL_batch_id] ON [dbo].[WA_CMS_DETAIL] ([batch_id]);
+      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_WA_CMS_DETAIL_rek_tujuan')
+        CREATE INDEX [IX_WA_CMS_DETAIL_rek_tujuan] ON [dbo].[WA_CMS_DETAIL] ([rek_tujuan]);
+    END
+  `;
+  try {
+    await pool.request().query(query);
+  } catch (err) {
+    console.error('[DB] Error auto-creating WA_CMS tables:', err.message);
+  }
+}
+
 async function getPool(targetDb) {
   const dbInfo = resolveDbConfig(targetDb);
   const cacheKey = dbInfo.key;
@@ -154,6 +210,7 @@ async function getPool(targetDb) {
       .then(async (pool) => {
         console.log(`[DBPool] Connected to ${dbInfo.displayName} at ${dbInfo.server}:${dbInfo.port}`);
         await ensureAuditLogTable(pool);
+        await ensureCmsMatchTables(pool);
         pool.on('error', (err) => {
           console.error(`[DBPool] Pool error on ${cacheKey}:`, err.message || err);
           if (!pool.connected) {

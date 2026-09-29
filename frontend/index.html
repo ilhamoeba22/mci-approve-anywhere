@@ -13,6 +13,7 @@
   <link rel="shortcut icon" type="image/png" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css?v=36.0.0">
+  <link rel="stylesheet" href="css/cms-matcher.css?v=1.0.0">
 </head>
 <body>
   <!-- Login Screen -->
@@ -135,6 +136,9 @@
             <button class="nav-item" data-module="kondisi_khusus">
               <span class="icon">⚡</span> <span>Kondisi Khusus</span>
               <span class="badge badge-count" id="count-kondisi_khusus">0</span>
+            </button>
+            <button class="nav-item" data-module="cms_match" id="nav-cms-match">
+              <span class="icon">📑</span> <span>Cek Transaksi CMS</span>
             </button>
           </div>
 
@@ -304,6 +308,172 @@
             </table>
           </div>
         </div>
+
+        <!-- Cek Transaksi CMS View -->
+        <div id="view-cms" class="module-view hidden">
+          <div class="cms-container">
+            <!-- Header Card -->
+            <div class="cms-header-card">
+              <div class="cms-header-title-box">
+                <div>
+                  <h2><span>📑</span> Cek Transaksi CMS (Smart Matching Transfer Bank)</h2>
+                  <p>Verifikasi kecocokan file parameter transfer dengan laporan hasil transfer bank, dan dokumentasikan data transaksi yang cocok ke database.</p>
+                </div>
+              </div>
+
+              <!-- Navigation Tabs -->
+              <div class="cms-nav-tabs">
+                <button type="button" class="cms-tab-btn active" id="cms-tab-match-btn" onclick="window.cmsMatcher.switchCmsTab('match')">
+                  <span>✨</span> Pencocokan Baru
+                </button>
+                <button type="button" class="cms-tab-btn" id="cms-tab-history-btn" onclick="window.cmsMatcher.switchCmsTab('history')">
+                  <span>📜</span> Riwayat Transaksi Cocok (Database)
+                </button>
+              </div>
+            </div>
+
+            <!-- TAB 1: AREA PENCOCOKAN BARU -->
+            <div id="cms-section-match">
+              <!-- Upload Dropzone Grid -->
+              <div class="cms-upload-grid">
+                <!-- Dropzone File A: Parameter -->
+                <div class="cms-dropzone" id="cms-dz-param">
+                  <input type="file" id="cms-file-param" accept=".xlsx,.xls" onchange="window.cmsMatcher.onFileParam(this)">
+                  <span class="cms-dz-tag tag-param">📄 File A — Parameter</span>
+                  <div class="cms-dz-title">File Instruksi Parameter</div>
+                  <div class="cms-dz-sub">Format Excel (.xlsx / .xls) · Sheet: <b>PRINT</b> · CODE: <b>2</b></div>
+                  <div class="cms-dz-info" id="cms-info-param">
+                    <div class="cms-dz-filename" id="cms-fn-param"></div>
+                    <div class="cms-dz-stat" id="cms-st-param"></div>
+                  </div>
+                  <div class="cms-dz-errbox" id="cms-err-param"></div>
+                </div>
+
+                <!-- Dropzone File B: Hasil Transfer -->
+                <div class="cms-dropzone" id="cms-dz-hasil">
+                  <input type="file" id="cms-file-hasil" accept=".xlsx,.xls,.csv" onchange="window.cmsMatcher.onFileHasil(this)">
+                  <span class="cms-dz-tag tag-hasil">📊 File B — Hasil Transfer</span>
+                  <div class="cms-dz-title">File Laporan Hasil Transfer Bank</div>
+                  <div class="cms-dz-sub">Format Excel (.xlsx/.xls) atau CSV (Kolom: <b>DESTINATION & AMOUNT</b>)</div>
+                  <div class="cms-dz-info" id="cms-info-hasil">
+                    <div class="cms-dz-filename" id="cms-fn-hasil"></div>
+                    <div class="cms-dz-stat" id="cms-st-hasil"></div>
+                  </div>
+                  <div class="cms-dz-errbox" id="cms-err-hasil"></div>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="cms-action-bar">
+                <button type="button" class="btn btn-primary" id="cms-btn-match" disabled onclick="window.cmsMatcher.runMatch()">
+                  <span>✨ Cocokkan Sekarang</span>
+                </button>
+                <button type="button" class="btn btn-success" id="cms-btn-save" style="display:none;" onclick="window.cmsMatcher.openSaveModal()">
+                  <span>💾 Simpan Transaksi Cocok ke Database</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="cms-btn-export-temp" style="display:none;" onclick="window.cmsMatcher.exportTempExcel()">
+                  <span>⬇ Unduh Excel Hasil Cek</span>
+                </button>
+                <button type="button" class="btn btn-outline" id="cms-btn-reset" style="display:none;" onclick="window.cmsMatcher.resetMatch()">
+                  <span>↺ Reset</span>
+                </button>
+              </div>
+
+              <!-- Results Area -->
+              <div id="cms-results-area" style="display:none;">
+                <!-- KPI Stats -->
+                <div class="cms-stats-grid">
+                  <div class="cms-stat-card total">
+                    <span class="cms-stat-label">Total Data Parameter</span>
+                    <span class="cms-stat-value" id="cms-s-total">0</span>
+                  </div>
+                  <div class="cms-stat-card ok">
+                    <span class="cms-stat-label">✅ Sesuai (Cocok Persis)</span>
+                    <span class="cms-stat-value" id="cms-s-ok">0</span>
+                  </div>
+                  <div class="cms-stat-card err">
+                    <span class="cms-stat-label">❌ Tidak Sesuai (Anomali)</span>
+                    <span class="cms-stat-value" id="cms-s-err">0</span>
+                  </div>
+                  <div class="cms-stat-card pct">
+                    <span class="cms-stat-label">Tingkat Kecocokan</span>
+                    <span class="cms-stat-value" id="cms-s-pct">0%</span>
+                  </div>
+                </div>
+
+                <!-- Policy Notice -->
+                <div class="cms-notice-banner">
+                  <span style="font-size:16px;">💡</span>
+                  <div>
+                    <b>Kebijakan Dokumentasi Database:</b> Hanya transaksi dengan status <b>✅ SESUAI</b> yang akan disimpan ke database saat Anda menekan tombol <i>"Simpan Transaksi Cocok ke Database"</i>. Transaksi yang salah/error hanya ditampilkan di layar ini sebagai bahan evaluasi dan <u>tidak akan mengotori database</u>.
+                  </div>
+                </div>
+
+                <!-- Filter & Search Bar -->
+                <div class="cms-filter-bar">
+                  <div class="cms-filter-buttons">
+                    <button type="button" class="cms-fbtn active" data-f="all" onclick="window.cmsMatcher.setFilter('all')">Semua Transaksi</button>
+                    <button type="button" class="cms-fbtn" data-f="ok" onclick="window.cmsMatcher.setFilter('ok')">✅ Hanya Sesuai</button>
+                    <button type="button" class="cms-fbtn" data-f="err" onclick="window.cmsMatcher.setFilter('err')">❌ Hanya Tidak Sesuai</button>
+                  </div>
+                  <div class="cms-search-box">
+                    <input type="text" id="cms-search-input" placeholder="🔍 Cari nasabah, rekening, atau bank..." oninput="window.cmsMatcher.renderTable()">
+                  </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div class="table-container">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th style="width:40px; text-align:center;">No</th>
+                        <th>Nasabah</th>
+                        <th>Rek Sumber (IBA)</th>
+                        <th>Bank Tujuan</th>
+                        <th>Nama Tujuan</th>
+                        <th>Rekening Tujuan</th>
+                        <th>Nominal</th>
+                        <th>Status</th>
+                        <th>Keterangan Validasi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cms-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: AREA RIWAYAT DATABASE -->
+            <div id="cms-section-history" style="display:none;">
+              <div class="cms-filter-bar">
+                <div class="cms-search-box" style="flex:1; max-width:400px;">
+                  <input type="text" id="cms-history-search" placeholder="🔍 Cari No. Batch, User, atau Catatan..." oninput="window.cmsMatcher.renderHistoryTable()">
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.cmsMatcher.loadHistory()">
+                  <span>🔄 Refresh Riwayat</span>
+                </button>
+              </div>
+
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:40px; text-align:center;">No</th>
+                      <th>No. Batch</th>
+                      <th>Waktu Verifikasi</th>
+                      <th>Petugas/Checker</th>
+                      <th>Nama File Sumber</th>
+                      <th style="text-align:center;">Data Cocok</th>
+                      <th>Catatan</th>
+                      <th style="text-align:center; width:170px;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cms-history-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   </div>
@@ -421,11 +591,66 @@
     </div>
   </div>
 
+  <!-- Modal Konfirmasi Simpan CMS ke Database -->
+  <div id="cms-save-modal" class="modal-backdrop hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header modal-header-success">
+        <div class="modal-title-box">
+          <span class="modal-title-icon">💾</span>
+          <h3>Simpan Transaksi Cocok ke Database</h3>
+        </div>
+        <button class="close-btn" onclick="window.cmsMatcher.closeSaveModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 20px 24px;">
+        <div style="background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius); padding:14px; margin-bottom:16px;">
+          <div style="font-size:13px; color:var(--text-muted);">Jumlah data yang akan disimpan:</div>
+          <div style="font-size:20px; font-weight:800; color:var(--success);" id="cms-save-count-badge">0 Transaksi</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">* Hanya transaksi yang berstatus <b>SESUAI (VALID)</b> yang akan didokumentasikan.</div>
+        </div>
+
+        <div style="font-size:12px; margin-bottom:14px;">
+          <div><b>File Parameter:</b> <span id="cms-save-param-file">-</span></div>
+          <div><b>File Hasil:</b> <span id="cms-save-hasil-file">-</span></div>
+        </div>
+
+        <div class="form-group">
+          <label for="cms-save-note">Catatan / Keterangan Batch (Opsional)</label>
+          <input type="text" id="cms-save-note" placeholder="Contoh: Transfer Gaji Karyawan Bulan Ini / Kliring Batch 1" style="font-size:13px;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.cmsMatcher.closeSaveModal()">Batal</button>
+        <button class="btn btn-success" id="cms-btn-confirm-save" onclick="window.cmsMatcher.confirmSaveBatch()">
+          <span>💾 Ya, Simpan Sekarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail Transaksi Batch CMS -->
+  <div id="cms-detail-modal" class="modal-backdrop hidden">
+    <div class="modal-card detail-modal-card" style="max-width:900px; width:95%;">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <span class="modal-title-icon">📜</span>
+          <h3>Rincian Batch Transaksi Cocok</h3>
+        </div>
+        <button class="close-btn" onclick="window.closeCmsBatchDetail()">&times;</button>
+      </div>
+      <div class="modal-body" id="cms-detail-modal-body" style="padding: 20px 24px;"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeCmsBatchDetail()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="js/xlsx.full.min.js"></script>
   <script src="js/biometric.js?v=36.0.0"></script>
   <script src="js/pwa-install.js?v=36.0.0"></script>
+  <script src="js/cms-matcher.js?v=1.0.0"></script>
   <script src="js/app.js?v=36.0.0"></script>
 </body>
 </html>

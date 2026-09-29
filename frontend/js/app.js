@@ -382,6 +382,8 @@ async function apiFetch(endpoint, options = {}, isRetry = false) {
   return data;
 }
 
+window.apiFetch = apiFetch;
+
 const loginScreen = document.getElementById('login-screen');
 const appShell = document.getElementById('app-shell');
 const loginForm = document.getElementById('login-form');
@@ -584,6 +586,8 @@ function showToast(title, message, type = 'success') {
     setTimeout(() => toast.remove(), 300);
   }, 4500);
 }
+
+window.showToast = showToast;
 
 async function loadLoginDatabases() {
   const input = document.getElementById('target_db');
@@ -800,6 +804,8 @@ function switchView(module) {
   document.getElementById('view-dashboard').classList.add('hidden');
   document.getElementById('view-module').classList.add('hidden');
   document.getElementById('view-audit').classList.add('hidden');
+  const viewCms = document.getElementById('view-cms');
+  if (viewCms) viewCms.classList.add('hidden');
 
   if (module === 'dashboard') {
     document.getElementById('view-dashboard').classList.remove('hidden');
@@ -811,6 +817,8 @@ function switchView(module) {
   } else if (module === 'tutup_kantor') {
     document.getElementById('view-module').classList.remove('hidden');
     loadTutupKantor();
+  } else if (module === 'cms_match') {
+    if (viewCms) viewCms.classList.remove('hidden');
   } else {
     document.getElementById('view-module').classList.remove('hidden');
     loadModuleData(module);
