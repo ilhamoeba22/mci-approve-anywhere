@@ -1,0 +1,244 @@
+========================================================================================
+     PANDUAN LENGKAP DEPLOYMENT SISTEM: VIA SSH (OTOMATIS) & CPANEL FILE MANAGER (MANUAL)
+                        APLIKASI: MCI APPROVEANYWHERE
+========================================================================================
+Tanggal Dibuat : 29 September 2026
+Domain Aplikasi: https://approveanywhere.bprshikmciyk.co.id
+IP Server VPS  : 202.10.43.50
+Port SSH       : 2223 (Port Khusus cPanel)
+
+
+----------------------------------------------------------------------------------------
+DAFTAR ISI
+----------------------------------------------------------------------------------------
+1. Penjelasan: Bagaimana Cara AI/Sistem Melakukan Deployment ke Hosting Anda
+2. Data & Kredensial yang Diperlukan untuk Meng-SSH Server Hosting Anda
+3. CARA 1: Deployment Otomatis Sekali Klik (Menggunakan deploy-to-vps.bat / Node.js)
+4. CARA 2: Deployment Manual Menggunakan cPanel File Manager & Terminal
+5. Struktur Folder Aplikasi di Server Hosting
+6. Perintah-Perintah Penting Pengelolaan Backend (PM2)
+7. Troubleshooting & Solusi Jika Terjadi Error Pasca-Deploy
+
+
+========================================================================================
+1. PENJELASAN: BAGAIMANA CARA SAYA (AI) MELAKUKAN DEPLOYMENT KE HOSTING ANDA
+========================================================================================
+Mungkin Anda bertanya-tanya: "Kenapa AI bisa langsung deploy tanpa membuka browser cPanel?"
+
+Jawabannya adalah melalui jalur Remote Terminal & SFTP:
+1. Protokol SSH (Secure Shell) & SFTP (Secure File Transfer Protocol):
+   Di komputer lokal Anda sudah terpasang pustaka (library) bernama "ssh2" di Node.js.
+   Script kami membuka koneksi terenkripsi langsung ke server VPS Anda melalui Port 2223.
+
+2. Pengiriman File (File Transfer):
+   Setelah koneksi SSH terhubung dan terotentikasi, script menggunakan modul SFTP untuk 
+   mengunggah file-file yang baru saja diubah (misalnya app.js, index.html, cmsController.js) 
+   langsung menimpa file lama di folder target di server hosting.
+
+3. Eksekusi Perintah Remote (Remote Command Execution):
+   Setelah file berhasil diunggah, script mengirim perintah remote bash ke server hosting:
+   "pm2 reload mci-approve-backend"
+   Ini memerintahkan PM2 (Process Manager) di server untuk me-reload proses backend Node.js 
+   sehingga source code baru langsung aktif tanpa membuat server mati (zero-downtime).
+
+4. Verifikasi Kesehatan (Health Check):
+   Sistem langsung melakukan pengetesan otomatis ke:
+   https://approveanywhere.bprshikmciyk.co.id/api/health
+   Jika server merespons "HTTP 200 OK", maka proses deployment dinyatakan sukses 100%.
+
+
+========================================================================================
+2. DATA & KREDENSIAL YANG DIPERLUKAN UNTUK MENG-SSH SERVER HOSTING ANDA
+========================================================================================
+Agar seseorang atau script bisa meng-SSH hosting Anda, diperlukan 5 data utama berikut:
+
+1. HOST / ALAMAT IP SERVER:
+   Nilai: 202.10.43.50 (atau approveanywhere.bprshikmciyk.co.id)
+   Fungsi: Alamat tujuan koneksi internet server hosting.
+
+2. PORT SSH (SANGAT PENTING):
+   Nilai: 2223
+   Fungsi: Port standar SSH adalah 22. Namun hosting cPanel Anda menggunakan port 
+   khusus yaitu 2223 demi keamanan. Jika Anda menggunakan port 22, koneksi akan ditolak!
+
+3. USERNAME CPANEL / SSH:
+   Nilai: bprw7255
+   Fungsi: Akun login pengguna hosting tempat aplikasi berada.
+
+4. PASSWORD SSH ATAU SSH PRIVATE KEY:
+   Nilai: Muhammad@060101
+   Fungsi: Kunci keamanan otentikasi login. (Bisa berupa kata sandi teks atau file 
+   kunci privat id_rsa/.ppk).
+
+5. DIREKTORI TUJUAN APLIKASI (REMOTE PATH):
+   Nilai: /home/bprw7255/public_html/approveanywhere.bprshikmciyk.co.id
+   Fungsi: Lokasi folder fisik di harddisk server tempat file web dan backend berada.
+
+6. NAMA PROSES PM2 NODE.JS:
+   Nilai: mci-approve-backend
+   Fungsi: Nama service backend yang berjalan di background server.
+
+
+========================================================================================
+3. CARA 1: DEPLOYMENT OTOMATIS SEKALI KLIK (DIREKOMENDASIKAN UNTUK TIM IT)
+========================================================================================
+Kami telah membuatkan file script otomatis di folder proyek:
+- "deploy-to-vps.bat" (Untuk pengguna Windows)
+- "scripts/deploy.js" (Script utama Node.js SFTP)
+
+LANGKAH MENGGUNAKANNYA:
+1. Setelah Anda mengedit atau menambahkan kode di komputer lokal.
+2. Buka folder kerja: D:\Kerjaan\BASE AI\PROSES OTORISASI CIF\
+3. Cukup KLIK DUA KALI (Double Click) file:
+   ==> deploy-to-vps.bat <==
+4. Sebuah jendela hitam (Command Prompt) akan muncul dan menjalankan proses:
+   - Menghubungkan ke 202.10.43.50:2223
+   - Mengunggah file frontend dan backend
+   - Me-reload PM2 di server
+   - Menampilkan status [SUKSES]
+5. Selesai! Perubahan sudah langsung aktif di https://approveanywhere.bprshikmciyk.co.id
+
+
+========================================================================================
+4. CARA 2: DEPLOYMENT MANUAL MENGGUNAKAN CPANEL FILE MANAGER & TERMINAL
+========================================================================================
+Jika Anda atau staf IT ingin melakukan update secara manual tanpa script SSH:
+
+LANGKAH 1: LOGIN KE CPANEL
+1. Buka browser dan akses alamat cPanel hosting Anda:
+   Contoh: https://approveanywhere.bprshikmciyk.co.id:2083 atau https://202.10.43.50:2083
+2. Masukkan Username: bprw7255
+3. Masukkan Password: (Password akun cPanel Anda)
+4. Klik tombol "Log in".
+
+LANGKAH 2: BUKA FILE MANAGER (PENGELOLA FILE)
+1. Di halaman utama cPanel, cari dan klik menu "File Manager" (ikon folder kuning).
+2. Di panel sebelah kiri, klik dua kali folder:
+   public_html
+3. Lalu klik folder:
+   approveanywhere.bprshikmciyk.co.id
+   (Jalur lengkapnya: /public_html/approveanywhere.bprshikmciyk.co.id/)
+
+LANGKAH 3: UPLOAD FILE KE DALAM FOLDER YANG SESUAI
+Perhatikan bahwa aplikasi terbagi menjadi dua bagian:
+
+A. FILE TAMPILAN (FRONTEND):
+   - File "index.html"      ==> Upload langsung di dalam folder approveanywhere.bprshikmciyk.co.id/
+   - File di folder "css/"  ==> Buka folder "css", lalu upload file "style.css", "cms-matcher.css"
+   - File di folder "js/"   ==> Buka folder "js", lalu upload file "app.js", "cms-matcher.js", "xlsx.full.min.js"
+
+B. FILE LOGIKA SERVER (BACKEND):
+   - Masuk ke folder: backend/src/
+   - File "app.js"          ==> Upload di: backend/src/app.js
+   - File database          ==> Upload di: backend/src/config/db.js
+   - File controller baru   ==> Upload di: backend/src/controllers/ (misal: cmsController.js)
+   - File route baru        ==> Upload di: backend/src/routes/ (misal: cmsRoutes.js)
+
+*TIPS MEMPERCEPAT UPLOAD MANUAL:
+Anda bisa men-zip file-file yang ingin diupdate di komputer lokal, upload file .zip tersebut 
+ke File Manager cPanel, lalu klik kanan file .zip di cPanel dan pilih "Extract".
+
+LANGKAH 4: RESTART BACKEND VIA TERMINAL CPANEL (WAJIB DILAKUKAN)
+Setelah file backend diperbarui, proses Node.js di server harus di-restart agar membaca 
+kode baru tersebut:
+1. Kembali ke halaman utama cPanel.
+2. Di bagian "Advanced", cari dan klik menu "Terminal".
+3. Di dalam layar hitam Terminal cPanel, ketik perintah berikut:
+
+   pm2 reload mci-approve-backend
+
+4. Tekan Enter.
+5. Anda akan melihat tabel status PM2 dengan status "online" berwarna hijau.
+6. Selesai! Update manual Anda telah sukses diterapkan.
+
+
+========================================================================================
+5. STRUKTUR FOLDER APLIKASI DI SERVER HOSTING
+========================================================================================
+Lokasi Dasar: /home/bprw7255/public_html/approveanywhere.bprshikmciyk.co.id/
+
+├── index.html                   (Halaman utama web portal)
+├── css/
+│   ├── style.css                (CSS utama ApproveAnywhere)
+│   └── cms-matcher.css          (CSS khusus modul Cek Transaksi CMS)
+├── js/
+│   ├── app.js                   (Logika navigasi utama portal)
+│   ├── biometric.js             (Modul login sidik jari/FaceID)
+│   ├── pwa-install.js           (Modul instalasi aplikasi mobile PWA)
+│   ├── cms-matcher.js           (Logika smart matching transfer bank)
+│   └── xlsx.full.min.js         (Library Excel offline)
+├── backend/
+│   ├── package.json
+│   ├── .env                     (Konfigurasi Port, DB, dan JWT)
+│   └── src/
+│       ├── server.js            (Titik masuk server Node.js Express)
+│       ├── app.js               (Pemasangan middleware & route API)
+│       ├── config/
+│       │   ├── db.js            (Koneksi pool MSSQL ke server IBA)
+│       │   └── vapid.js         (Konfigurasi Push Notification)
+│       ├── controllers/
+│       │   ├── authController.js
+│       │   ├── cifController.js
+│       │   ├── tabunganController.js
+│       │   ├── transaksiController.js
+│       │   └── cmsController.js (Controller simpan transaksi cocok)
+│       ├── routes/
+│       │   ├── authRoutes.js
+│       │   ├── cmsRoutes.js
+│       │   └── ...
+│       └── services/
+│           └── pushWorker.js    (Background monitor antrean pending)
+
+
+========================================================================================
+6. PERINTAH-PERINTAH PENTING PENGELOLAAN BACKEND (PM2)
+========================================================================================
+Jika Anda membuka Terminal via SSH (Putty / CMD) atau via Terminal cPanel:
+
+1. Melihat Status Backend (Apakah aktif atau mati):
+   pm2 status
+
+2. Memuat Ulang Backend (Tanpa Downtime):
+   pm2 reload mci-approve-backend
+
+3. Memulai Ulang Backend (Restart Penuh):
+   pm2 restart mci-approve-backend
+
+4. Melihat Catatan Log Error (Jika ada kendala):
+   pm2 logs mci-approve-backend --err --lines 50
+
+5. Melihat Catatan Log Akses & Aktivitas Terbaru:
+   pm2 logs mci-approve-backend --lines 50
+
+6. Melihat Penggunaan Memori & CPU Server Secara Real-Time:
+   pm2 monit
+
+
+========================================================================================
+7. TROUBLESHOOTING & CHECKLIST VERIFIKASI PASCA-DEPLOY
+========================================================================================
+1. TAMPILAN BELUM BERUBAH DI BROWSER SETELAH DEPLOY?
+   Penyebab: Browser menyimpan cache file JavaScript dan Service Worker PWA.
+   Solusi:
+   - Di PC: Tekan kombinasi tombol [Ctrl + Shift + R] atau [Ctrl + F5] (Hard Refresh).
+   - Di Smartphone: Hapus cache browser di Pengaturan, atau buka via Mode Penyamaran 
+     (Incognito Tab).
+
+2. SERVER MENGALAMI 503 SERVICE UNAVAILABLE?
+   Penyebab: Backend PM2 belum berjalan atau sempat terhenti oleh sistem cPanel.
+   Solusi:
+   - Buka Terminal cPanel / SSH.
+   - Ketik: pm2 restart mci-approve-backend
+   - *(Catatan: Server Anda sudah dilengkapi script watchdog otomatis per 3 menit di crontab, 
+     sehingga jika mati akan otomatis menyala sendiri dalam 3 menit)*.
+
+3. MEMASTIKAN KONEKSI DATABASE IBA AKTIF:
+   Buka URL berikut di browser:
+   https://approveanywhere.bprshikmciyk.co.id/api/health
+   Jika muncul JSON dengan pesan "Backend API and Database Connection operational",
+   maka backend dan database SQL Server IBA terhubung 100% normal.
+
+========================================================================================
+Dokumen ini disimpan di folder proyek Anda:
+D:\Kerjaan\BASE AI\PROSES OTORISASI CIF\PANDUAN_DEPLOYMENT_SSH_DAN_FILEMANAGER.txt
+========================================================================================

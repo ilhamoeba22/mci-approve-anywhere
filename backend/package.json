@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "deploy": "node ../scripts/deploy.js",
     "test": "node test/test_m1.js"
   },
   "dependencies": {
