@@ -1,11 +1,6 @@
 const { getPool, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
-
-function getFormattedNow() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-}
+const { getCbsTimestamp } = require('../utils/cbsDate');
 
 async function getPendingTabungan(req, res, next) {
   try {
@@ -43,10 +38,10 @@ async function approveTabungan(req, res, next) {
   try {
     const { notab } = req.params;
     const checker = req.user.userid;
-    const now = getFormattedNow();
     const autterm = req.auditInfo ? req.auditInfo.devterm : 'WEB-LAN';
 
     const pool = await getPool(req.user ? req.user.target_db : null);
+    const now = await getCbsTimestamp(pool);
     const result = await pool.request()
       .input('notab', mssql.VarChar(11), notab)
       .input('autuser', mssql.VarChar(10), checker)
@@ -110,10 +105,10 @@ async function rejectTabungan(req, res, next) {
     }
 
     const checker = req.user.userid;
-    const now = getFormattedNow();
     const autterm = req.auditInfo ? req.auditInfo.devterm : 'WEB-LAN';
 
     const pool = await getPool(req.user ? req.user.target_db : null);
+    const now = await getCbsTimestamp(pool);
     const result = await pool.request()
       .input('notab', mssql.VarChar(11), notab)
       .input('autuser', mssql.VarChar(10), checker)

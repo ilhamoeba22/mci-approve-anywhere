@@ -21,11 +21,21 @@ const LOCAL_BASE = path.resolve(__dirname, '..');
 
 // 2. DAFTAR FILE YANG DI-DEPLOY KE HOSTING
 const DEPLOY_FILES = [
-  // Backend
+  // Backend Utils & Config
   { local: 'backend/src/app.js', remote: 'backend/src/app.js' },
   { local: 'backend/src/config/db.js', remote: 'backend/src/config/db.js' },
-  { local: 'backend/src/controllers/cmsController.js', remote: 'backend/src/controllers/cmsController.js' },
+  { local: 'backend/src/utils/cbsDate.js', remote: 'backend/src/utils/cbsDate.js' },
+  
+  // Backend Controllers
   { local: 'backend/src/controllers/transaksiController.js', remote: 'backend/src/controllers/transaksiController.js' },
+  { local: 'backend/src/controllers/cifController.js', remote: 'backend/src/controllers/cifController.js' },
+  { local: 'backend/src/controllers/tabunganController.js', remote: 'backend/src/controllers/tabunganController.js' },
+  { local: 'backend/src/controllers/depositoController.js', remote: 'backend/src/controllers/depositoController.js' },
+  { local: 'backend/src/controllers/pembiayaanController.js', remote: 'backend/src/controllers/pembiayaanController.js' },
+  { local: 'backend/src/controllers/asetController.js', remote: 'backend/src/controllers/asetController.js' },
+  { local: 'backend/src/controllers/jaminanController.js', remote: 'backend/src/controllers/jaminanController.js' },
+  { local: 'backend/src/controllers/kondisiKhususController.js', remote: 'backend/src/controllers/kondisiKhususController.js' },
+  { local: 'backend/src/controllers/cmsController.js', remote: 'backend/src/controllers/cmsController.js' },
   { local: 'backend/src/routes/cmsRoutes.js', remote: 'backend/src/routes/cmsRoutes.js' },
   
   // Frontend

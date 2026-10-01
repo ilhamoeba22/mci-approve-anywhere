@@ -1,11 +1,6 @@
 const { getPool, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
-
-function getFormattedNow() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-}
+const { getCbsTimestamp } = require('../utils/cbsDate');
 
 async function getPendingTransaksi(req, res, next) {
   try {
@@ -92,10 +87,10 @@ async function approveTransaksi(req, res, next) {
     }
     const [tgltrn, batch, notrn] = parts;
     const checker = req.user.userid;
-    const now = getFormattedNow();
     const autterm = req.auditInfo ? req.auditInfo.devterm : 'WEB-LAN';
 
     const pool = await getPool(req.user ? req.user.target_db : null);
+    const now = await getCbsTimestamp(pool, tgltrn);
 
     // Verify nominal transaction limit against supervisor wewenang limit in USERPROFILE
     const trnQuery = await pool.request()
@@ -134,10 +129,12 @@ async function approveTransaksi(req, res, next) {
     }
 
     // Insert into TRANSPC for Tabungan accounts so passbook printing (Cetak Buku / Cetak Ulang) is available in CBS
+    // AND update TOFTABC so intraday balance & mutasi in CBS are updated immediately
     if (trnQuery.recordset.length > 0) {
       const trnData = trnQuery.recordset[0];
       const stscetakVal = (trnData.stscetak && trnData.stscetak.trim() === 'Y') ? 'Y' : 'N';
       const ketVal = (trnData.ket || '').substring(0, 40);
+      const nominalVal = Number(trnData.nominalrp) || 0;
 
       try {
         if (String(trnData.drmodul).trim() === '1' && trnData.dracc) {
@@ -159,6 +156,20 @@ async function approveTransaksi(req, res, next) {
                 INSERT INTO TRANSPC (tgltrn, batch, notrn, noacc, dc, nominal, nominalva, stscetak, kdtrnbuku, trnke, ket)
                 VALUES (@tgltrn, @batch, @notrn, @noacc, @dc, @nominal, @nominalva, @stscetak, @kdtrnbuku, @trnke, @ket)
               END
+            `);
+
+          // Update TOFTABC for Debet
+          await pool.request()
+            .input('noacc', mssql.VarChar(11), trnData.dracc.trim())
+            .input('nominal', mssql.Numeric(16, 2), nominalVal)
+            .input('tgltrn', mssql.VarChar(8), tgltrn)
+            .query(`
+              UPDATE TOFTABC 
+              SET mutasidr = mutasidr + @nominal, 
+                  sahirrp = sahirrp - @nominal, 
+                  tgltrnakh = @tgltrn, 
+                  trnke = trnke + 1 
+              WHERE notab = @noacc
             `);
         }
 
@@ -182,9 +193,23 @@ async function approveTransaksi(req, res, next) {
                 VALUES (@tgltrn, @batch, @notrn, @noacc, @dc, @nominal, @nominalva, @stscetak, @kdtrnbuku, @trnke, @ket)
               END
             `);
+
+          // Update TOFTABC for Credit
+          await pool.request()
+            .input('noacc', mssql.VarChar(11), trnData.cracc.trim())
+            .input('nominal', mssql.Numeric(16, 2), nominalVal)
+            .input('tgltrn', mssql.VarChar(8), tgltrn)
+            .query(`
+              UPDATE TOFTABC 
+              SET mutasicr = mutasicr + @nominal, 
+                  sahirrp = sahirrp + @nominal, 
+                  tgltrnakh = @tgltrn, 
+                  trnke = trnke + 1 
+              WHERE notab = @noacc
+            `);
         }
       } catch (transpcErr) {
-        console.error('[approveTransaksi] Error inserting TRANSPC record:', transpcErr.message);
+        console.error('[approveTransaksi] Error inserting TRANSPC / updating TOFTABC record:', transpcErr.message);
       }
     }
 
@@ -218,10 +243,11 @@ async function rejectTransaksi(req, res, next) {
     }
     const [tgltrn, batch, notrn] = parts;
     const checker = req.user.userid;
-    const now = getFormattedNow();
     const autterm = req.auditInfo ? req.auditInfo.devterm : 'WEB-LAN';
 
     const pool = await getPool(req.user ? req.user.target_db : null);
+    const now = await getCbsTimestamp(pool, tgltrn);
+
     const result = await pool.request()
       .input('tgltrn', mssql.VarChar(8), tgltrn)
       .input('batch', mssql.Numeric(5, 0), batch)

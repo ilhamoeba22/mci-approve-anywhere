@@ -1,11 +1,6 @@
 const { getPool, mssql } = require('../config/db');
 const { writeAuditLog } = require('../middleware/auditLogger');
-
-function getFormattedNow() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-}
+const { getCbsTimestamp } = require('../utils/cbsDate');
 
 async function getPendingJaminan(req, res, next) {
   try {
@@ -82,7 +77,7 @@ async function approveJaminan(req, res, next) {
       });
     }
 
-    const now = getFormattedNow();
+    const now = await getCbsTimestamp(pool);
     const autterm = req.auditInfo ? (req.auditInfo.devterm || req.auditInfo.networkType || 'WEB-LAN') : 'WEB-LAN';
 
     let updateQuery = `
@@ -162,7 +157,7 @@ async function rejectJaminan(req, res, next) {
       });
     }
 
-    const now = getFormattedNow();
+    const now = await getCbsTimestamp(pool);
     const autterm = req.auditInfo ? (req.auditInfo.devterm || req.auditInfo.networkType || 'WEB-LAN') : 'WEB-LAN';
 
     let updateQuery = `
